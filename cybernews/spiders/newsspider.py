@@ -64,6 +64,7 @@ class NewsSpider(scrapy.Spider):
     # TODO: Current behavior is to continue;
     # alternative is to break once previous article found
     def in_urls(self, url):
+        print(f"URL in urls: {url in self.recent_urls}\n\n")
         return url in self.recent_urls
 
     def get_tags(self, response):
