@@ -83,7 +83,7 @@ class Lawfare(NewsSpider):
     baseurl = "https://www.lawfareblog.com"
     start_urls = ["https://www.lawfareblog.com/topic/cybersecurity"]
 
-    def parse(self, response):
+    def parse(self, response, cb= None):
         arts = response.xpath("//article")
         for art in arts:
             # articles have @class=username tag with author name which [-1] removes
@@ -99,12 +99,13 @@ class Lawfare(NewsSpider):
             )
             dt = self.strptime(dt, "%a, %b %d, %Y, %I:%M %p")
             if dt:
+                cb['dt'] = dt
                 if self.cutoff_check(url=url, dt=dt):
                     yield scrapy.Request(
                         url=url,
                         callback=self.art_parse,
                         headers=self.headers,
-                        cb_kwargs=dict(dt=dt),
+                        cb_kwargs=cb,
                     )
                 # articles are chronological so stop returning
                 else:
