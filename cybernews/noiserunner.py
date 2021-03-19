@@ -40,6 +40,6 @@ if __name__ == "__main__":
     earliest = datetime(2021, 2, 11)
     latest = datetime.today()
     process = crawler(
-        noise.FCWNoise, **dict(earliest=earliest, latest=latest, recent_urls=urls)
+        noise.CyberScoopNoise, **dict(earliest=earliest, latest=latest, recent_urls=urls)
     )
     process.start()

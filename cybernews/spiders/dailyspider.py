@@ -146,13 +146,9 @@ class InsideCS(NewsSpider):
     baseurl = "https://insidecybersecurity.com"
     start_urls = ["https://insidecybersecurity.com/daily-news"]
 
-    # def __init__(self, cb = InsideCS.logged_in, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.cb = cb
-
     # TODO:change too handling all days after cutoff
     # NOTE: days filings are always done in the morning and weekends are skipped
-    # Thus, curren behavior where only looking at today's stories should suffice
+    # Thus, current behavior only looking at today's stories should suffice
     def logged_in(self, response, dt=None, date_check=False):
         # get just todays content [0], confirm date within article, however
         articles = response.css(".view-content")[0].css("h2 a::attr(href)").getall()
