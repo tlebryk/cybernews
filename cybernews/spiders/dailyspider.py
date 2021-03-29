@@ -83,7 +83,7 @@ class Lawfare(NewsSpider):
     baseurl = "https://www.lawfareblog.com"
     start_urls = ["https://www.lawfareblog.com/topic/cybersecurity"]
 
-    def parse(self, response, cb= None):
+    def parse(self, response, cb=None):
         arts = response.xpath("//article")
         for art in arts:
             # articles have @class=username tag with author name which [-1] removes
@@ -99,7 +99,7 @@ class Lawfare(NewsSpider):
             )
             dt = self.strptime(dt, "%a, %b %d, %Y, %I:%M %p")
             if dt:
-                cb['dt'] = dt
+                cb["dt"] = dt
                 if self.cutoff_check(url=url, dt=dt):
                     yield scrapy.Request(
                         url=url,
@@ -149,7 +149,7 @@ class InsideCS(NewsSpider):
     # TODO:change too handling all days after cutoff
     # NOTE: days filings are always done in the morning and weekends are skipped
     # Thus, current behavior only looking at today's stories should suffice
-    def logged_in(self, response, dt=None, date_check=False):
+    def logged_in(self, response, dt=None, date_check=True):
         # get just todays content [0], confirm date within article, however
         articles = response.css(".view-content")[0].css("h2 a::attr(href)").getall()
         for article in articles:
@@ -163,13 +163,13 @@ class InsideCS(NewsSpider):
                 cb_kwargs=dict(dt=dt, date_check=date_check),
             )
 
-    def parse(self, response):
+    def parse(self, response, date_check=True):
         return scrapy.FormRequest.from_response(
             response,
             formdata=pws.InsideCS2,
             callback=self.logged_in,
             headers=self.headers,
-            cb_kwargs=dict(dt=None, date_check=False),
+            cb_kwargs=dict(dt=None, date_check=date_check),
         )
 
     # NOTE: old articles worked with this...
@@ -190,8 +190,7 @@ class InsideCS(NewsSpider):
         dt = super().get_author(response).split("/")[1].strip()
         return self.strptime(dt, "%M %d, %Y")
 
-        # see get_dt2 for format
-
+    # see get_dt2 for format
     def get_author(self, response):
         return super().get_author(response).split("/")[0].strip()
 
@@ -274,7 +273,7 @@ class WSJSpider(NewsSpider):
     def get_title(self, response):
         return extract_text(response.css(".wsj-article-headline").get())
 
-    # TODO: keep time of datetime object and make sure get_dt only passes dt object 
+    # TODO: keep time of datetime object and make sure get_dt only passes dt object
     # and not str
     def get_dt(self, response):
         dt = response.css(".timestamp::text").get().strip()
@@ -311,14 +310,14 @@ class SecAffSpider(NewsSpider):
     name = "Security Affairs"
     start_urls = ["https://securityaffairs.co/wordpress/category/cyber-warfare-2"]
 
-    def parse(self, response):
+    def parse(self, response, date_check=True):
         articles = response.css(".post_wrapper")
         for art in articles:
             dt = extract_text(
                 art.xpath(".//*[contains(@class, 'post_detail')]/a").get()
             )
             dt = self.strptime(dt, "%B %d, %Y")
-            if dt:
+            if dt and date_check:
                 if dt < self.cutoff:
                     break
             url = art.xpath(".//h3/a/@href").get()
@@ -356,12 +355,12 @@ class WiredSpider(NewsSpider):
     start_urls = ["https://www.wired.com/category/security/page/1/"]
     baseurl = "https://www.wired.com"
 
-    def parse(self, response):
+    def parse(self, response, date_check=True):
         articles = response.css(".archive-item-component__info")
         for article in articles:
             dt = extract_text(article.css("time").get())
             dt = self.strptime(dt, "%B %d, %Y")
-            if dt:
+            if dt and date_check:
                 if dt < self.cutoff:
                     break
             url = urljoin(self.baseurl, article.xpath("a/@href").get())
@@ -408,8 +407,9 @@ class DefenseOne(NewsSpider):
     name = "Defense One"
     start_urls = ["https://www.defenseone.com/topic/cyber/"]
     baseurl = "https://www.defenseone.com"
-
-    def parse(self, response):
+    # first article is in different format,
+    # all other articles caught through "innerarts"
+    def parse(self, response, date_check=True):
         url = response.xpath("//h1[contains(@class, 'top-story')]/a/@href").get()
         url = urljoin(self.baseurl, url)
         if not self.in_urls(url):
@@ -418,7 +418,9 @@ class DefenseOne(NewsSpider):
             )
             dt = self.strptime(dt, "%M %d, %Y")
             if dt:
-                if dt >= self.cutoff:
+                if dt < self.cutoff and date_check:
+                    return None
+                else:
                     yield scrapy.Request(
                         url=url,
                         callback=self.art_parse,
@@ -437,7 +439,7 @@ class DefenseOne(NewsSpider):
             dt = art.css("time::text").get()
             dt = self.strptime(dt, "%M %d, %Y")
             if dt:
-                if dt < self.cutoff:
+                if dt < self.cutoff and date_check:
                     break
                 url = urljoin(self.baseurl, art.xpath(".//a/@href").get())
                 if self.in_urls(url):
@@ -486,7 +488,7 @@ class ZDNetSpider(NewsSpider):
     start_urls = ["https://www.zdnet.com/topic/security/"]
     base_url = "https://www.zdnet.com/"
 
-    def parse(self, response):
+    def parse(self, response, date_check=True):
         heading = response.xpath("//section[contains(@id, 'topic-river-latest')]")
         articles = heading.xpath(".//a[@class='thumb']/@href")
         for article in articles:
@@ -514,7 +516,7 @@ class C4ISRNETSpider(NewsSpider):
     start_urls = ["https://www.c4isrnet.com/cyber/?source=dfn-nav"]
     base_url = "https://www.c4isrnet.com"
 
-    def parse(self, response):
+    def parse(self, response, date_check=True):
         articles = response.css("div.m-headlineTease__info")
         for article in articles:
             url = article.xpath(".//a/@href").get()
@@ -523,7 +525,7 @@ class C4ISRNETSpider(NewsSpider):
             dt = extract_text(article.xpath(".//time").get()).strip()
             if "days" in dt and dt[0].isnumeric():
                 dt = self.today - timedelta(int(dt[0]))
-                if self.cutoff > dt:
+                if self.cutoff > dt and date_check:
                     break
             yield scrapy.Request(url=url, callback=self.art_parse, headers=self.headers)
 
@@ -543,14 +545,14 @@ class HillSpider(NewsSpider):
     start_urls = ["https://thehill.com/policy/cybersecurity"]
     base_url = "https://thehill.com/"
 
-    def parse(self, response):
+    def parse(self, response, date_check=True):
         articles = response.xpath("//article")
         for article in articles:
             dt = extract_text(article.xpath(".//span[contains(@*, 'date')]").get())
             # remove trailing timezone characters
             dt = dt[:-4]
             dt = self.strptime(dt, "%m/%d/%y %I:%M %p")
-            if dt:
+            if dt and date_check:
                 if dt < self.cutoff:
                     break
             url = article.xpath(".//@about").get()
@@ -585,4 +587,3 @@ class HillSpider(NewsSpider):
 # class BloombergSpider(NewsSpider):
 #     name = "Bloomberg"
 #     start_urls = ["https://www.bloomberg.com/code-wars?sref=3OIZCXOE"]
-
