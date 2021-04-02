@@ -134,7 +134,7 @@ if __name__ == "__main__":
         # populate missing headlines with empty string
         if len(links) > len(headline):
             headline += ["" for i in range(len(links) - len(headline))]
-        if len(links) != len(body):
+        if len(links) < len(body):
             s = f"links length: {len(links)}, \n\
 body length: {len(body)}, \n\
 meta length: {len(meta)}"
