@@ -144,7 +144,7 @@ meta length: {len(meta)}"
             logging.debug(f'body: {body[:100]}')
             error_count += 1
             continue
-        for i in range(len(links)):
+        for i in range(len(body)):
             el = {
             "title": headline[i],
             "url": links[i],
