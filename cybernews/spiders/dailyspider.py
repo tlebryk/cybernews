@@ -28,7 +28,7 @@ class FCW(NewsSpider):
     def parse(self, response):
         insider = self.getfcwinsider(response)
         if insider:
-            return scrapy.Request(
+        return scrapy.Request(
                 url=insider, callback=self.insider_arts, headers=self.headers
             )
 
