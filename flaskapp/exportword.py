@@ -33,8 +33,8 @@ def exporter(briefing, export_path, obj):
     para = doc.add_paragraph()
     para = doc.add_paragraph()
     para.add_run("Contents").bold = True
+    # save space for internal document links/bookmarks
     parals = [doc.add_paragraph() for i in range(len(obj))]
-    doc.add_paragraph()
     doc.add_paragraph()
     para = doc.add_paragraph()
     para.add_run("Articles").bold = True
@@ -61,11 +61,12 @@ def exporter(briefing, export_path, obj):
         para4 = doc.add_paragraph()
         para4.add_run(o['body'])
         doc.add_paragraph()
+        doc.add_paragraph()
 
     for i, o in enumerate(obj):
         r = book_link(paragraph=parals[i], bookmark_name=str(i), text=o['title'], tool_tip=o['title'])
         r.bold = True
-        parals[i].add_run('(')
+        parals[i].add_run(' (')
         parals[i].add_run(o['source']).italic = True
         parals[i].add_run(')')
 
@@ -87,7 +88,7 @@ def CEFP_export(export_path, obj):
 # Path is path to json file with articles in it
 # export path should be path to a .docx file
 def cyber_export(export_path, obj):
-    exporter("CEFP News Briefing", export_path, obj)
+    exporter("Daily Cyber News Briefing", export_path, obj)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,10 @@
+.art-foot{
+    display: flex;
+}
+
+.art-foot.space-around {
+    justify-content: space-around;
+  }
+.art-foot.space-between {  
+    justify-content: space-between;
+  }
