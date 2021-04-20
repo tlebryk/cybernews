@@ -8,3 +8,11 @@
 .art-foot.space-between {  
     justify-content: space-between;
   }
+
+.arrows {
+  margin-left:auto
+}
+
+.button-contain{
+    display: flex;
+}
