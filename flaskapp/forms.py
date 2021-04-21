@@ -14,3 +14,14 @@ class ArticleForm(FlaskForm):
 
 
     submit = SubmitField("submit article")
+
+class AutoPopForm(FlaskForm):
+    url0 = StringField("Url0")
+    url1 = StringField("Url1")
+    url2 = StringField("Url2")
+    url3 = StringField("Url3")
+    url4 = StringField("Url4")
+    url5 = StringField("Url5")
+    url6 = StringField("Url6")
+
+    submit = SubmitField("submit urls")

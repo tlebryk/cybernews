@@ -5,15 +5,29 @@
 
 
 from flask import Flask, render_template, url_for, flash, redirect, request, send_file
-from forms import ArticleForm
+from forms import ArticleForm, AutoPopForm
 import exportword
 from datetime import date
+from cybernews.spiders import articlesspider as AS
+# from cybernews.spiders import dailyspider as DS
+from cybernews.spiders import art_spider2 as AS2
+from scrapy.utils.project import get_project_settings
+import json
+from scrapy.crawler import CrawlerRunner
+
 
 app = Flask(__name__)
+crawl_runner = CrawlerRunner()      
+scrape_in_progress = False
+scrape_complete = False
 
 # filler; make environment variable later
 app.config["SECRET_KEY"] = "6f1f6f1c724600453622f48c48555e73"
 td = date.today()
+
+
+
+url_ls = []
 
 # for testing purposes, prepopulate 3 articles
 articles = [
@@ -64,7 +78,7 @@ def home():
 @app.route("/printer", methods=["GET", "POST"])
 def printer():
     for a in articles:
-        print(a["title"])
+        print(a)
     return render_template("home.html", articles=articles)
 
 
@@ -98,10 +112,28 @@ def add_article():
     return render_template("article_form.html", form=f, legend="Create Post")
 
 
-# @app.route("/download", methods=["POST"])
-# def downloadFile():
-#     if request.method == "POST":
-
+@app.route("/autopop", methods=["POST", "GET"])
+def autopop():
+    f = AutoPopForm()
+    if request.method == "POST":
+        req = request.form.copy()
+        req.pop("submit")
+        req.pop("csrf_token")
+        # NOTE: auto population for now
+        global url_ls
+        #        # hill_ls = ["https://thehill.com/policy/cybersecurity/548307-house-republicans-raise-concerns-about-new-chinese-tech-companies?rl=1",
+        #     "https://thehill.com/homenews/administration/548367-biden-administration-unveils-sweeping-sanctions-on-russia",
+        #     "https://thehill.com/opinion/national-security/546613-bidens-infrastructure-proposal-is-good-for-americas-national"
+        # ]
+        # fcw_ls =["https://fcw.com/articles/2021/04/16/katz-cyber-diplomacy.aspx",
+        # "https://fcw.com/articles/2021/04/19/supply-chain-risk-scope-comment-loucaides.aspx"]
+        url_ls= [v for v in req.values() if v]
+        url_clump = AS.sort_urls2(url_ls) 
+        crawl(url_clump=url_clump)
+    if f.validate_on_submit():
+        flash(f"Added urls", "success")
+        return redirect(url_for("home"))
+    return render_template("autopop.html", form=f, legend="Create Post")
 
 
 # This way of finding and deleting is pretty degenerate...
@@ -176,6 +208,56 @@ def post(article_title):
     _,a = a
     return render_template("post.html", title=a["title"], art=a)
 
+@app.route('/crawl')
+def crawl(url_clump):
+    """
+    Scrape for quotes
+    """
+    global scrape_in_progress
+    global scrape_complete
+
+    if not scrape_in_progress:
+        scrape_in_progress = True
+        global articles
+        # start the crawler and execute a callback when complete
+        for clump in url_clump.values():
+            crawl_runner.crawl(clump.Spider, **dict(start_urls=clump._url_ls, date_check=False, articles=articles))
+    #     eventual.addCallback(finished_scrape)
+    #     return 'SCRAPING'
+    # elif scrape_complete:
+    #     return 'SCRAPE COMPLETE'
+    # return 'SCRAPE IN PROGRESS'
+
+def finished_scrape(null):
+    """
+    A callback that is fired after the scrape has completed.
+    Set a flag to allow display the results from /results
+    """
+    global scrape_complete
+    scrape_complete = True
+
+def url_lookup(url_ls):
+    settings = get_project_settings()
+    settings["FEEDS"] = {
+        "test1.json": {"format": "json", "encoding": "utf8", "overwrite": False}
+    }
+    process = AS.get_articles(url_ls, settings)
+    process.start()
+    articles.extend(AS.DICT_LS)
+
+@app.route('/results')
+def get_results():
+    """
+    Get the results only if a spider has results
+    """
+    global scrape_complete
+    if scrape_complete:
+        return articles
+    # return 'Scrape Still Progress'
+    
+    # with open("test2.json", "w", encoding="utf-8") as fp:
+    #     s = json.dumps(AS.DICT_LS, ensure_ascii=False, indent="\t")
+    #     fp.write(s)
 
 # returns None if not found or current position
 def find_art(article_title):
@@ -209,5 +291,20 @@ class ArticleLs:
 # to use flask run, set environment variables (use set command windows or export in mac/linux)
 # set FLASK_APP=app.py
 # set FLASK_DEBUG=1
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__=='__main__':
+    from sys import stdout
+    from twisted.logger import globalLogBeginner, textFileLogObserver
+    from twisted.web import server, wsgi
+    from twisted.internet import endpoints, reactor
+
+    # start the logger
+    globalLogBeginner.beginLoggingTo([textFileLogObserver(stdout)])
+
+    # start the WSGI server
+    root_resource = wsgi.WSGIResource(reactor, reactor.getThreadPool(), app)
+    factory = server.Site(root_resource)
+    http_server = endpoints.TCP4ServerEndpoint(reactor, 5000)
+    http_server.listen(factory)
+
+    # start event loop
+    reactor.run()
