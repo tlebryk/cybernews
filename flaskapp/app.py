@@ -112,8 +112,8 @@ def add_article():
     return render_template("article_form.html", form=f, legend="Create Post")
 
 
-@app.route("/autopop", methods=["POST", "GET"])
-def autopop():
+@app.route("/url_form", methods=["POST", "GET"])
+def url_form():
     f = AutoPopForm()
     if request.method == "POST":
         req = request.form.copy()
@@ -133,7 +133,7 @@ def autopop():
     if f.validate_on_submit():
         flash(f"Added urls", "success")
         return redirect(url_for("home"))
-    return render_template("autopop.html", form=f, legend="Create Post")
+    return render_template("url_form.html", form=f, legend="Create Post")
 
 
 # This way of finding and deleting is pretty degenerate...

@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+
+<!-- make a block called content
+    to be inserted into layout.html in its content block -->
+{% block content %}
+    {% for art in articles %}
+        <article class="media content-section">
+            <div class="media-body">
+
+                <div class="art-metadata">
+                    <span>
+                    {{ art.author }}
+                        <small class="text-muted">{{ art.date }}</small>
+                    </span>
+
+                </div>
+                <h2><a href="{{ url_for('post', article_title=art['title']) }}">{{ art.title }} </a> </h2>
+                <p class="article-content">{{ art.body[:50] + "..."}}</p> 
+                <div class="art-foot space-between"> 
+                    <div class="arrows">
+                        <form action="{{ url_for('move_up', article_title=art.title) }}" method="POST">
+                            {% include 'up-arrow.html' %}  
+                        </form>
+                        <form action="{{ url_for('move_down', article_title=art.title) }}" method="POST" class="arrows">
+                            {% include 'down-arrow.html' %}  
+                        </form>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">
+                        {% include 'trash-button.html' %}  
+                    </button>
+                    {% include 'delete-modal.html' %}  
+                </div>
+            </div>
+        </article>
+    {% endfor %}
+
+
+    <!-- <article class="media content-section"> -->
+        <div class="media-body">
+            <div class="art-foot space-between"> 
+                <a href="{{ url_for('add_article') }}"><button class='btn btn-outline-info'>Article Form</button></a>
+                {% if articles %}
+                    <form action="{{ url_for('background_export') }}" method="post">
+                        <button class='btn btn-outline-info' type="submit">Export</button>
+                    </form>
+                {% endif %}
+                
+            </div>
+        <!-- </div> -->
+    </article>
+
+
+{% endblock content %}
+
