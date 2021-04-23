@@ -86,21 +86,6 @@ def sort_urls(urls, Clumpdct={}):
         "insidecybersecurity.com": DS.InsideCS,
     }
 
-    # roots = {
-    #     "lawfareblog.com": AS2.LawfareArt,
-    #     "cyberscoop.com": AS2.CyberScoopArt,
-    #     "wsj.com": AS2.WSJArt,
-    #     # "bloomberg.com": AS2.BloombergSpiderArt,
-    #     "c4isrnet.com": AS2.C4ISRNETArt,
-    #     "defenseone.com": AS2.DefenseOneArt,
-    #     "wired.com": AS2.WiredArt,
-    #     "zdnet.com": AS2.ZDNetArt,
-    #     "securityaffairs.co": AS2.SecAffArt,
-    #     "thehill.com": AS2.HillArt,
-    #     "fcw.com": AS2.FCWArt,
-    #     "insidecybersecurity.com": AS2.InsideCSArt,
-    # }
-
     for url in urls:
         # host = url_host(url[0])
         host = url_host(url)

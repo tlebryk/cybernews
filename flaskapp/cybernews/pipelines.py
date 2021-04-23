@@ -15,20 +15,21 @@ class CyberNewsPipeline:
     article_counter = 0
 
     def open_spider(self, spider):
-        self.file = open(today + spider.source + ".json", "w")  
-        if self.article_counter == 0:
-            self.file.write("[")
+        # self.file = open(today + spider.source + ".json", "w")  
+        # if self.article_counter == 0:
+        #     self.file.write("[\n")
+        pass
 
 
     def process_item(self, item, spider):
-        line = json.dumps(ItemAdapter(item).asdict()) + ",\n"
-        self.file.write(line)
+        line = json.dumps(ItemAdapter(item).asdict()) + "\n"
+        # self.file.write(line)
         self.article_counter+=1
-        print(line)
+        # print(line)
         return item
 
     def close_spider(self, spider):
-        self.file.write("]")
+        # self.file.write("]")
         self.file.close()
 
 class JsonWritePipeline:
