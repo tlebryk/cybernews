@@ -9,7 +9,6 @@ from dateutil import parser
 import re
 import json
 from .newsspider import NewsSpider
-from . import dailyspider as DS
 import sys
 
 sys.path.append("C:\\Users\\tlebr\\Google Drive\\fdd\\dailynews\\cybernews\\cybernews")

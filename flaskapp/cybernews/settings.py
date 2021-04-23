@@ -13,11 +13,16 @@ SPIDER_MODULES = ['cybernews.spiders']
 NEWSPIDER_MODULE = 'cybernews.spiders'
 
 
+
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'cybernews (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
+
+FEED_EXPORT_ENCODING = "utf-8"
+
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32

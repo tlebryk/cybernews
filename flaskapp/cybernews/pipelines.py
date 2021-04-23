@@ -7,11 +7,29 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 import json
+from datetime import date
+
+today = date.today().strftime(r"%B_%d_%Y")
+
+class CyberNewsPipeline:
+    article_counter = 0
+
+    def open_spider(self, spider):
+        self.file = open(today + spider.source + ".json", "w")  
+        if self.article_counter == 0:
+            self.file.write("[")
 
 
-class CybernewsPipeline:
     def process_item(self, item, spider):
+        line = json.dumps(ItemAdapter(item).asdict()) + ",\n"
+        self.file.write(line)
+        self.article_counter+=1
+        print(line)
         return item
+
+    def close_spider(self, spider):
+        self.file.write("]")
+        self.file.close()
 
 class JsonWritePipeline:
     def open_spider(self, spider):
