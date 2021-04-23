@@ -19,7 +19,7 @@ def crawler(spiders, *args, **kwargs):
     process = CrawlerProcess(settings)
     for spider in spiders:
         settings["FEEDS"] = {
-            f"jsons/{today}_{spider.source}.json": {
+            f"jsons/{today}/{spider.source}.json": {
                 "format": "json",
                 "encoding": "utf8",
                 "overwrite": False,
