@@ -15,7 +15,7 @@ class NewsSpider(scrapy.Spider):
     # NOTE: will eventually come from last time script ran
     # for now, round down to midnight
     current_time = timedelta(hours=today.hour, minutes=today.minute+1)
-    cutoff = today - timedelta(5) - current_time
+    cutoff = today - timedelta(1) - current_time
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:63.0) Gecko/20100101 Firefox/63.0"
     }
