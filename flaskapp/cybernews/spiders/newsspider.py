@@ -14,7 +14,7 @@ class NewsSpider(scrapy.Spider):
     today = datetime.today()
     # NOTE: will eventually come from last time script ran
     # for now, round down to midnight
-    current_time = timedelta(hours=today.hour, minutes=today.minute+1)
+    current_time = timedelta(hours=today.hour, minutes=today.minute + 1)
     cutoff = today - timedelta(1) - current_time
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:63.0) Gecko/20100101 Firefox/63.0"
@@ -22,10 +22,10 @@ class NewsSpider(scrapy.Spider):
 
     # make sure start_urls and date_check are defined even if None
     def __init__(self, *args, **kwargs):
-        self.start_urls = kwargs.get('start_urls')
-        self.date_check = kwargs.get('date_check')
-        if kwargs.get('articles'):
-            self.articles =  kwargs.get('articles')
+        self.start_urls = kwargs.get("start_urls")
+        self.date_check = kwargs.get("date_check")
+        if kwargs.get("articles"):
+            self.articles = kwargs.get("articles")
         else:
             self.articles = []
         self.__dict__.update(kwargs)
@@ -95,8 +95,8 @@ class NewsSpider(scrapy.Spider):
         body = [extract_text(b.get()) for b in body if b.get()]
         return "\n\n".join(body)
 
-    # Get_dt should return a datetime object, 
-    # which we convert in the article parse section at the end 
+    # Get_dt should return a datetime object,
+    # which we convert in the article parse section at the end
     # into a string of format into "Month day, year" format
     def get_dt(self, response):
         dt = extract_text(response.css("time").get())
@@ -109,9 +109,6 @@ class NewsSpider(scrapy.Spider):
             author = extract_text(response.css(".author").get())
         return self.bycheck(author)
 
-    # TODO: need get_dt to only pass datetime object [check that not passing date]
-    # handle dates not getting found.
-    # If date_check, don't take old articles.
     def art_parse(self, response, dt=None, date_check=True):
         if not dt:
             dt = self.get_dt(response)

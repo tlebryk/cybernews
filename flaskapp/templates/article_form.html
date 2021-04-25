@@ -1,8 +1,5 @@
-<!-- MISSING BOOTSTRAPPED FORMAT -->
 {% extends 'layout.html' %}
 
-<!-- make a block called content
-    to be inserted into layout.html in its content block -->
 {% block content %}
     <form method="POST", action=""> 
         {{ form.hidden_tag() }}
@@ -32,8 +29,7 @@
             </div>
             <div class="form-group">
                 {{ form.body.label(class="form-control-label")}}
-                <!-- {{form.date()}} -->
-                {{ form.body(class="form-control form-control-sm", rows='12')}}
+=                {{ form.body(class="form-control form-control-sm", rows='12')}}
             </div>
             <div class="form-group">
                 {{ form.submit(class="btn btn-outline-info")}}
@@ -42,6 +38,5 @@
             
         </fieldset>
         <form>
-            <!-- end content block; name is optional -->
 {% endblock content %}
 

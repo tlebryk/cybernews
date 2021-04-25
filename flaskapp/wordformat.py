@@ -1,4 +1,4 @@
-# module for docxtest
+# module for exportword.py
 import docx
 from docx.enum.dml import MSO_THEME_COLOR_INDEX
 
@@ -45,8 +45,6 @@ def add_bookmark(paragraph, bookmark_text, bookmark_name):
     tag.append(end)
     return run
 
-
-# doc = docx.Document("docs/Cyber_Clips_February_23_2021.docx")
 
 # Adds text to paragraph with link to an internal bookmark
 # Returns run with link in it

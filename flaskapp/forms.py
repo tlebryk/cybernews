@@ -11,9 +11,8 @@ class ArticleForm(FlaskForm):
     body = TextAreaField("Body", validators=[DataRequired()])
     source = StringField("Source")
     date = StringField("Date of article", validators=[DataRequired()])
-
-
     submit = SubmitField("submit article")
+
 
 class AutoPopForm(FlaskForm):
     url0 = StringField("Url0")
@@ -23,5 +22,4 @@ class AutoPopForm(FlaskForm):
     url4 = StringField("Url4")
     url5 = StringField("Url5")
     url6 = StringField("Url6")
-
     submit = SubmitField("submit urls")

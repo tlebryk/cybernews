@@ -6,9 +6,7 @@ from datetime import date, datetime, timedelta
 import json
 
 
-oldpath = (
-    "C:\\Users\\tlebr\\Google Drive\\fdd\\dailynews\\cybernews\\data\\oldarts.json"
-)
+oldpath = "C:\\Users\\tlebr\\Google Drive\\fdd\\dailynews\\cybernews\\data\\oldarts.json"
 with open(oldpath, encoding="utf-8") as f:
     s = json.load(f)
 df = pd.json_normalize(s)
@@ -24,9 +22,8 @@ def crawler(Spider, *args, **kwargs):
             "overwrite": True,
         }
     }
-    # settings[
-    #     "LOG_FILE"
-    # ] = "C:/Users/tlebr/Google Drive/fdd/dailynews/cybernews/cybernews/logs/noise.log"
+    log_path = "C:/Users/tlebr/Google Drive/fdd/dailynews/cybernews/cybernews/logs/noise.log"
+    settings["LOG_FILE"] = log_path
     process = CrawlerProcess(settings)
     process.crawl(Spider, **kwargs)
     print(settings)
@@ -38,6 +35,7 @@ if __name__ == "__main__":
     earliest = datetime(2021, 2, 11)
     latest = datetime.today()
     process = crawler(
-        noise.InsideCSNoise, **dict(earliest=earliest, latest=latest, recent_urls=urls)
+        noise.InsideCSNoise, 
+        **dict(earliest=earliest, latest=latest, recent_urls=urls)
     )
     process.start()

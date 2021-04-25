@@ -52,9 +52,7 @@ def exporter(briefing, export_path, obj):
         para2.add_run(o['author'] + ", ")
         para2.add_run(o['source']).italic = True
         dt = o['date']
-        # dt = parser.parse(dt).date
         para2.add_run(", " + str(dt))
-        # dt.strptime("%B %d, %Y")
         para3 = doc.add_paragraph()
         add_hyperlink(para3, o["url"], o["url"])
         doc.add_paragraph()
@@ -78,15 +76,10 @@ def exporter(briefing, export_path, obj):
         para_format.space_after = 0
     doc.save(export_path)
 
-# Use formatting for cyber briefings
-# Path is path to json file with articles in it
-# export path should be path to a .docx file
+
 def CEFP_export(export_path, obj):
     exporter("CEFP News Briefing", export_path,obj) 
 
-# Use formatting for cyber briefings
-# Path is path to json file with articles in it
-# export path should be path to a .docx file
 def cyber_export(export_path, obj):
     exporter("Daily Cyber News Briefing", export_path, obj)
 
