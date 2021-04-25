@@ -1,248 +1,248 @@
-from . import dailyspider as DS
-from . import articlesspider
-from .newsspider import NewsSpider
-import scrapy
-from datetime import date, datetime, timedelta
-import json
-import sys
-import urllib
-sys.path.append("C:\\Users\\tlebr\\Google Drive\\fdd\\dailynews\\cybernews\\cybernews")
-import oldarts
+# from . import dailyspider as DS
+# from . import articlesspider
+# from .newsspider import NewsSpider
+# import scrapy
+# from datetime import date, datetime, timedelta
+# import json
+# import sys
+# import urllib
+# sys.path.append("C:\\Users\\tlebr\\Google Drive\\fdd\\dailynews\\cybernews\\cybernews")
+# # import oldarts
 
 
-Spider = DS.InsideCS
+# Spider = DS.InsideCS
 
 
-class Noise(Spider):
-    name = "Noise"
+# class Noise(Spider):
+#     name = "Noise"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.break_flag = True
-        self.source = super().name
-        delta = self.latest - self.earliest
-        self.days = [self.earliest + timedelta(days=i) for i in range(delta.days + 1)]
-        self.start_urls = self.get_starturls()
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.break_flag = True
+#         self.source = super().name
+#         delta = self.latest - self.earliest
+#         self.days = [self.earliest + timedelta(days=i) for i in range(delta.days + 1)]
+#         self.start_urls = self.get_starturls()
 
-    def start_requests(self):
-        for url in self.start_urls:
-            yield scrapy.Request(url, callback=self.parse, cb_kwargs=dict(date_check=False))
+#     def start_requests(self):
+#         for url in self.start_urls:
+#             yield scrapy.Request(url, callback=self.parse, cb_kwargs=dict(date_check=False))
 
-    def art_parse(self, response, dt=None, date_check=False):
-        if response.url in self.recent_urls:
-            return None
-        x = super().art_parse(response, dt=dt, date_check=date_check)
-        if x:
-            x["Relevant"] = 0
-            if x["date"]:
-                if self.strptime(x["date"], "%Y-%b-%d %I:%M:%S") < self.earliest:
-                    self.break_flag = False
-                    print(f"{response.url}\n\n\n")
-                    return None
-        return x
-
-
-class FCWNoise(Noise):
-    name = "FCW_Noise"
-    # years is list of strings with year
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        delta = self.latest - self.earliest
-        self.days = [self.earliest + timedelta(days=i) for i in range(delta.days + 1)]
-        self.start_urls = self.get_starturls()
-
-    def get_starturls(self):
-        prefix = "https://fcw.com/blogs/fcw-insider/"
-        suffix = "topstories.aspx"
-        ls = []
-        for day in self.days:
-            url = f"{prefix}{day.strftime('%Y')}/\
-{day.strftime('%m')}/{day.strftime('%b%d')}{suffix}"
-            ls.append(url)
-        return ls
-
-    # will ignore all filler days as non 200 code requests
-    def parse(self, response, cb=None):
-        for url in self.start_urls:
-            yield scrapy.Request(
-                url=url,
-                callback=self.insider_arts,
-                headers=self.headers,
-                cb_kwargs=dict(cb={"date_check": False}),
-            )
-
-    def art_parse(self, response, dt=None, date_check=False):
-        if response.url in self.recent_urls:
-            return None
-        x = super().art_parse(response, dt=dt, date_check=date_check)
-        x["Relevant"] = 0
-        return x
+#     def art_parse(self, response, dt=None, date_check=False):
+#         if response.url in self.recent_urls:
+#             return None
+#         x = super().art_parse(response, dt=dt, date_check=date_check)
+#         if x:
+#             x["Relevant"] = 0
+#             if x["date"]:
+#                 if self.strptime(x["date"], "%Y-%b-%d %I:%M:%S") < self.earliest:
+#                     self.break_flag = False
+#                     print(f"{response.url}\n\n\n")
+#                     return None
+#         return x
 
 
-# data path: "C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\fcwnoise.json"
+# class FCWNoise(Noise):
+#     name = "FCW_Noise"
+#     # years is list of strings with year
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         delta = self.latest - self.earliest
+#         self.days = [self.earliest + timedelta(days=i) for i in range(delta.days + 1)]
+#         self.start_urls = self.get_starturls()
 
-# to do: break when earlier than earliest
-class LawfareNoise(Noise):
-    name = "Lawfare_noise"
+#     def get_starturls(self):
+#         prefix = "https://fcw.com/blogs/fcw-insider/"
+#         suffix = "topstories.aspx"
+#         ls = []
+#         for day in self.days:
+#             url = f"{prefix}{day.strftime('%Y')}/\
+# {day.strftime('%m')}/{day.strftime('%b%d')}{suffix}"
+#             ls.append(url)
+#         return ls
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.cutoff = self.earliest
+#     # will ignore all filler days as non 200 code requests
+#     def parse(self, response, cb=None):
+#         for url in self.start_urls:
+#             yield scrapy.Request(
+#                 url=url,
+#                 callback=self.insider_arts,
+#                 headers=self.headers,
+#                 cb_kwargs=dict(cb={"date_check": False}),
+#             )
 
-    def get_starturls(self):
-        start_urls = self.start_urls
-        ls = []
-        for i in range(5):
-            ls.append(start_urls[0] + f"/?page={i}")
-        return ls
-
-    def start_requests(self):
-        for url in self.start_urls:
-            yield scrapy.Request(
-                url=url,
-                callback=self.parse,
-                headers=self.headers,
-                cb_kwargs=dict(cb={"date_check": False}),
-            )
-
-class InsideCSNoise(Noise):
-    name = "InsideCSNoise"
-
-    def get_starturls(self):
-        yield "https://insidecybersecurity.com/daily-news"
-
-    def logged_in(self, response, dt=None, date_check=False):
-        for i in range(8):
-            url = f"https://insidecybersecurity.com/daily-news?page={i}"
-            yield scrapy.Request(url=url,
-                                 callback=super().logged_in,
-                                 headers=self.headers,
-                                 cb_kwargs={"date_check": date_check,
-                                                 "dt": dt})
+#     def art_parse(self, response, dt=None, date_check=False):
+#         if response.url in self.recent_urls:
+#             return None
+#         x = super().art_parse(response, dt=dt, date_check=date_check)
+#         x["Relevant"] = 0
+#         return x
 
 
-# NOTE: be careful with current breakflag behavior
-class CyberScoopNoise(Noise):
-    name = "CyberScoopNoise"
+# # data path: "C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\fcwnoise.json"
 
-    def get_starturls(self):
-        return None
+# # to do: break when earlier than earliest
+# class LawfareNoise(Noise):
+#     name = "Lawfare_noise"
 
-    def start_requests(self):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.cutoff = self.earliest
 
-        base = """https://www.cyberscoop.com/wp-admin/admin-ajax.php"""
-        i = 0
-        formdata = {
-            "action": "loadmore",
-            "query": """a:64:{s:14:"posts_per_page";i:10;s:11:"post_status";s:7:"publish";s:13:"category_name";s:10:"government";s:12:"post__not_in";a:1:{i:0;i:54942;}s:5:"error";s:0:"";s:1:"m";s:0:"";s:1:"p";i:0;s:11:"post_parent";s:0:"";s:7:"subpost";s:0:"";s:10:"subpost_id";s:0:"";s:10:"attachment";s:0:"";s:13:"attachment_id";i:0;s:4:"name";s:0:"";s:8:"pagename";s:0:"";s:7:"page_id";i:0;s:6:"second";s:0:"";s:6:"minute";s:0:"";s:4:"hour";s:0:"";s:3:"day";i:0;s:8:"monthnum";i:0;s:4:"year";i:0;s:1:"w";i:0;s:3:"tag";s:0:"";s:3:"cat";i:3;s:6:"tag_id";s:0:"";s:6:"author";s:0:"";s:11:"author_name";s:0:"";s:4:"feed";s:0:"";s:2:"tb";s:0:"";s:5:"paged";i:0;s:8:"meta_key";s:0:"";s:10:"meta_value";s:0:"";s:7:"preview";s:0:"";s:1:"s";s:0:"";s:8:"sentence";s:0:"";s:5:"title";s:0:"";s:6:"fields";s:0:"";s:10:"menu_order";s:0:"";s:5:"embed";s:0:"";s:12:"category__in";a:0:{}s:16:"category__not_in";a:0:{}s:13:"category__and";a:0:{}s:8:"post__in";a:0:{}s:13:"post_name__in";a:0:{}s:7:"tag__in";a:0:{}s:11:"tag__not_in";a:0:{}s:8:"tag__and";a:0:{}s:12:"tag_slug__in";a:0:{}s:13:"tag_slug__and";a:0:{}s:15:"post_parent__in";a:0:{}s:19:"post_parent__not_in";a:0:{}s:10:"author__in";a:0:{}s:14:"author__not_in";a:0:{}s:19:"ignore_sticky_posts";b:0;s:16:"suppress_filters";b:0;s:13:"cache_results";b:1;s:22:"update_post_term_cache";b:1;s:19:"lazy_load_term_meta";b:1;s:22:"update_post_meta_cache";b:1;s:9:"post_type";s:0:"";s:8:"nopaging";b:0;s:17:"comments_per_page";s:2:"50";s:13:"no_found_rows";b:0;s:5:"order";s:4:"DESC";}""",
-            "page": str(i),
-            "content": "news",
-            "category_news": "government",
-        }
-        # currently 250 pages on government page as worst case cap
-        while i < 6 and self.break_flag:
-            formdata["page"] = str(i)
-            yield scrapy.FormRequest(
-                url=base, formdata=formdata, method="POST", callback=self.parse
-            )
-            i += 1
+#     def get_starturls(self):
+#         start_urls = self.start_urls
+#         ls = []
+#         for i in range(5):
+#             ls.append(start_urls[0] + f"/?page={i}")
+#         return ls
 
-    def parse(self, response):
-        x = response.css("a.article-thumb__title ::attr(href)")
-        for url in x:
-            yield scrapy.Request(url.get(), callback=self.art_parse)
+#     def start_requests(self):
+#         for url in self.start_urls:
+#             yield scrapy.Request(
+#                 url=url,
+#                 callback=self.parse,
+#                 headers=self.headers,
+#                 cb_kwargs=dict(cb={"date_check": False}),
+#             )
 
-    def art_parse(self, response, dt=None, date_check=False):
-        x = super().art_parse(response, dt=dt, date_check=date_check)
-        if x:
-            if self.strptime(x["date"], "%Y-%b-%d %I:%M:%S") < self.earliest:
-                self.break_flag = False
-                print(response.url)
-        return x
+# class InsideCSNoise(Noise):
+#     name = "InsideCSNoise"
+
+#     def get_starturls(self):
+#         yield "https://insidecybersecurity.com/daily-news"
+
+#     def logged_in(self, response, dt=None, date_check=False):
+#         for i in range(8):
+#             url = f"https://insidecybersecurity.com/daily-news?page={i}"
+#             yield scrapy.Request(url=url,
+#                                  callback=super().logged_in,
+#                                  headers=self.headers,
+#                                  cb_kwargs={"date_check": date_check,
+#                                                  "dt": dt})
 
 
-class WSJSpiderNoise(Noise):
-    name = "WSJNoise"
+# # NOTE: be careful with current breakflag behavior
+# class CyberScoopNoise(Noise):
+#     name = "CyberScoopNoise"
 
-    def get_starturls(self):
-        return ["https://www.wsj.com/pro/cybersecurity/topics/public-sector-and-military?id=%7B%22site%22%3A%20%22Pro%20Cyber%22%2C%20%22topic%22%3A%20%22public-sector-and-military%22%2C%20%22params%22%3A%20%7B%20%22count%22%3A%2010%2C%20%22sort%22%3A%20%22date-desc%22%20%7D%2C%20%22clientId%22%3A%20%22grandcanyon%22%2C%20%22database%22%3A%20%22wsjpro%2Cwsjie%22%7D&type=dnsasearch_topics", 
-        "https://www.wsj.com/pro/cybersecurity/topics/nation-states?id=%7B%22site%22%3A%20%22Pro%20Cyber%22%2C%20%22topic%22%3A%20%22nation-states%22%2C%20%22params%22%3A%20%7B%20%22count%22%3A%2010%2C%20%22sort%22%3A%20%22date-desc%22%20%7D%2C%20%22clientId%22%3A%20%22grandcanyon%22%2C%20%22database%22%3A%20%22wsjpro%2Cwsjie%22%7D&type=dnsasearch_topics"]
+#     def get_starturls(self):
+#         return None
 
-    def start_requests(self):
-        for url in self.start_urls:
-            yield scrapy.Request(url, callback=self.get_ids, headers=self.headers)
+#     def start_requests(self):
+
+#         base = """https://www.cyberscoop.com/wp-admin/admin-ajax.php"""
+#         i = 0
+#         formdata = {
+#             "action": "loadmore",
+#             "query": """a:64:{s:14:"posts_per_page";i:10;s:11:"post_status";s:7:"publish";s:13:"category_name";s:10:"government";s:12:"post__not_in";a:1:{i:0;i:54942;}s:5:"error";s:0:"";s:1:"m";s:0:"";s:1:"p";i:0;s:11:"post_parent";s:0:"";s:7:"subpost";s:0:"";s:10:"subpost_id";s:0:"";s:10:"attachment";s:0:"";s:13:"attachment_id";i:0;s:4:"name";s:0:"";s:8:"pagename";s:0:"";s:7:"page_id";i:0;s:6:"second";s:0:"";s:6:"minute";s:0:"";s:4:"hour";s:0:"";s:3:"day";i:0;s:8:"monthnum";i:0;s:4:"year";i:0;s:1:"w";i:0;s:3:"tag";s:0:"";s:3:"cat";i:3;s:6:"tag_id";s:0:"";s:6:"author";s:0:"";s:11:"author_name";s:0:"";s:4:"feed";s:0:"";s:2:"tb";s:0:"";s:5:"paged";i:0;s:8:"meta_key";s:0:"";s:10:"meta_value";s:0:"";s:7:"preview";s:0:"";s:1:"s";s:0:"";s:8:"sentence";s:0:"";s:5:"title";s:0:"";s:6:"fields";s:0:"";s:10:"menu_order";s:0:"";s:5:"embed";s:0:"";s:12:"category__in";a:0:{}s:16:"category__not_in";a:0:{}s:13:"category__and";a:0:{}s:8:"post__in";a:0:{}s:13:"post_name__in";a:0:{}s:7:"tag__in";a:0:{}s:11:"tag__not_in";a:0:{}s:8:"tag__and";a:0:{}s:12:"tag_slug__in";a:0:{}s:13:"tag_slug__and";a:0:{}s:15:"post_parent__in";a:0:{}s:19:"post_parent__not_in";a:0:{}s:10:"author__in";a:0:{}s:14:"author__not_in";a:0:{}s:19:"ignore_sticky_posts";b:0;s:16:"suppress_filters";b:0;s:13:"cache_results";b:1;s:22:"update_post_term_cache";b:1;s:19:"lazy_load_term_meta";b:1;s:22:"update_post_meta_cache";b:1;s:9:"post_type";s:0:"";s:8:"nopaging";b:0;s:17:"comments_per_page";s:2:"50";s:13:"no_found_rows";b:0;s:5:"order";s:4:"DESC";}""",
+#             "page": str(i),
+#             "content": "news",
+#             "category_news": "government",
+#         }
+#         # currently 250 pages on government page as worst case cap
+#         while i < 6 and self.break_flag:
+#             formdata["page"] = str(i)
+#             yield scrapy.FormRequest(
+#                 url=base, formdata=formdata, method="POST", callback=self.parse
+#             )
+#             i += 1
+
+#     def parse(self, response):
+#         x = response.css("a.article-thumb__title ::attr(href)")
+#         for url in x:
+#             yield scrapy.Request(url.get(), callback=self.art_parse)
+
+#     def art_parse(self, response, dt=None, date_check=False):
+#         x = super().art_parse(response, dt=dt, date_check=date_check)
+#         if x:
+#             if self.strptime(x["date"], "%Y-%b-%d %I:%M:%S") < self.earliest:
+#                 self.break_flag = False
+#                 print(response.url)
+#         return x
+
+
+# class WSJSpiderNoise(Noise):
+#     name = "WSJNoise"
+
+#     def get_starturls(self):
+#         return ["https://www.wsj.com/pro/cybersecurity/topics/public-sector-and-military?id=%7B%22site%22%3A%20%22Pro%20Cyber%22%2C%20%22topic%22%3A%20%22public-sector-and-military%22%2C%20%22params%22%3A%20%7B%20%22count%22%3A%2010%2C%20%22sort%22%3A%20%22date-desc%22%20%7D%2C%20%22clientId%22%3A%20%22grandcanyon%22%2C%20%22database%22%3A%20%22wsjpro%2Cwsjie%22%7D&type=dnsasearch_topics", 
+#         "https://www.wsj.com/pro/cybersecurity/topics/nation-states?id=%7B%22site%22%3A%20%22Pro%20Cyber%22%2C%20%22topic%22%3A%20%22nation-states%22%2C%20%22params%22%3A%20%7B%20%22count%22%3A%2010%2C%20%22sort%22%3A%20%22date-desc%22%20%7D%2C%20%22clientId%22%3A%20%22grandcanyon%22%2C%20%22database%22%3A%20%22wsjpro%2Cwsjie%22%7D&type=dnsasearch_topics"]
+
+#     def start_requests(self):
+#         for url in self.start_urls:
+#             yield scrapy.Request(url, callback=self.get_ids, headers=self.headers)
             
-    # extracts topic between "topic" and "?"
-    def get_topic(self, url):
-        ind = url.find("topics/") + len('topics/')
-        substr = url[ind:]
-        end = substr.find("?")
-        topic = url[ind:ind+end]
-        return topic
+#     # extracts topic between "topic" and "?"
+#     def get_topic(self, url):
+#         ind = url.find("topics/") + len('topics/')
+#         substr = url[ind:]
+#         end = substr.find("?")
+#         topic = url[ind:ind+end]
+#         return topic
 
-    def get_ids(self, response):
-        topic = self.get_topic(response.url)
-        data = response.css("p::text").get()
-        data = json.loads(data)
-        ids = [el['id'] for el in data['collection']]
-        for i in ids:
-                url = f"https://www.wsj.com/pro/cybersecurity/topics/{topic}?id={i}&type=article%7Cdnsa"
-                yield scrapy.Request(url, callback=self.get_url, headers=self.headers)
+#     def get_ids(self, response):
+#         topic = self.get_topic(response.url)
+#         data = response.css("p::text").get()
+#         data = json.loads(data)
+#         ids = [el['id'] for el in data['collection']]
+#         for i in ids:
+#                 url = f"https://www.wsj.com/pro/cybersecurity/topics/{topic}?id={i}&type=article%7Cdnsa"
+#                 yield scrapy.Request(url, callback=self.get_url, headers=self.headers)
         
-    def get_url(self, response):  
-        data = response.css("p::text").get()
-        data = json.loads(data)
-        url = data['data']['url']
-        return scrapy.Request(url, callback=self.art_parse, headers=self.headers)    
+#     def get_url(self, response):  
+#         data = response.css("p::text").get()
+#         data = json.loads(data)
+#         url = data['data']['url']
+#         return scrapy.Request(url, callback=self.art_parse, headers=self.headers)    
 
-class SecAffNoise(Noise):
-    name = "SecurityAffairsNoise"
+# class SecAffNoise(Noise):
+#     name = "SecurityAffairsNoise"
 
-    # TODO: build in functionality later to iterate through variable pages;
-    # for now only go through 2 pages. 
-    def get_starturls(self):
-        for i in range(1,3):
-            yield f"https://securityaffairs.co/wordpress/category/cyber-warfare-2/page/{i}"
+#     # TODO: build in functionality later to iterate through variable pages;
+#     # for now only go through 2 pages. 
+#     def get_starturls(self):
+#         for i in range(1,3):
+#             yield f"https://securityaffairs.co/wordpress/category/cyber-warfare-2/page/{i}"
 
-class WiredNoise(Noise):
-    name = 'WiredNoise'
+# class WiredNoise(Noise):
+#     name = 'WiredNoise'
 
-    # TODO: build in functionality later to iterate through variable pages;
-    # for now only go through 5 pages. 
-    def get_starturls(self):
-        for i in range(1,6):
-            yield f"https://www.wired.com/category/security/page/{i}"
+#     # TODO: build in functionality later to iterate through variable pages;
+#     # for now only go through 5 pages. 
+#     def get_starturls(self):
+#         for i in range(1,6):
+#             yield f"https://www.wired.com/category/security/page/{i}"
 
-# TODO: ignore scrolling for now 
-# articles on first page go to december 2020 anyway as of 3/22/2021
-# scrolling requires querying based on timestamp of last loaded article
-class DefenseOneNoise(Noise):
-    name = "DefenseOneNoise"
+# # TODO: ignore scrolling for now 
+# # articles on first page go to december 2020 anyway as of 3/22/2021
+# # scrolling requires querying based on timestamp of last loaded article
+# class DefenseOneNoise(Noise):
+#     name = "DefenseOneNoise"
 
-    def get_starturls(self):
-        yield "https://www.defenseone.com/topic/cyber/"
+#     def get_starturls(self):
+#         yield "https://www.defenseone.com/topic/cyber/"
 
-#  loading more should come from 
-# /api/component/listing/eb8801ee-85ee-4a34-8b5f-ffc84778491a/content/4b71f49e-561e-43b0-a8e2-c6a588fe538d
-# followed by lastassetid
-#  for now run everyday and change overwrite flag to append in noiserunner.py
-class ZDNetNoise(Noise):
-    name = "ZDNetNoise"
+# #  loading more should come from 
+# # /api/component/listing/eb8801ee-85ee-4a34-8b5f-ffc84778491a/content/4b71f49e-561e-43b0-a8e2-c6a588fe538d
+# # followed by lastassetid
+# #  for now run everyday and change overwrite flag to append in noiserunner.py
+# class ZDNetNoise(Noise):
+#     name = "ZDNetNoise"
 
-    def get_starturls(self):
-        yield "https://www.zdnet.com/topic/security/"
+#     def get_starturls(self):
+#         yield "https://www.zdnet.com/topic/security/"
 
-class C4ISRNETNoise(Noise):
-    name = "C4ISRNETNoise"
-    def get_starturls(self):
-        yield "https://www.c4isrnet.com/cyber/?source=dfn-nav"
+# class C4ISRNETNoise(Noise):
+#     name = "C4ISRNETNoise"
+#     def get_starturls(self):
+#         yield "https://www.c4isrnet.com/cyber/?source=dfn-nav"
 
 
-class HillNoise(Noise):
-    name = "HillNoise"
-    def get_starturls(self):
-            for i in range(0,7):
-                yield f"https://thehill.com/policy/cybersecurity?page={i}"
+# class HillNoise(Noise):
+#     name = "HillNoise"
+#     def get_starturls(self):
+#             for i in range(0,7):
+#                 yield f"https://thehill.com/policy/cybersecurity?page={i}"
 
 
     # for c4isnetnoise headers

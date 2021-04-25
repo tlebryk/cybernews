@@ -1,3 +1,4 @@
+# Script to get old daily clippings to train ranking model
 import os
 import zipfile
 import xml.etree.ElementTree as ET
@@ -155,27 +156,8 @@ meta length: {len(meta)}"
             if len(body) == len(meta):
                 el.update(meta[i])
             articles.append(el)
-    # with open(f'C:/Users/tlebr/Google Drive/fdd/dailynews/cybernews/data/jsons/{path.split(r"/")[-2]}.json', 'w', encoding="utf8") as fout:
 
     with open(f'C:/Users/tlebr/Google Drive/fdd/dailynews/cybernews/data/jsons/2017.json', 'w', encoding="utf8") as fout:
         json.dump(articles, fout, ensure_ascii=False, indent=1)
 
     logging.info(f"Error rate: {error_count/len(os.listdir(path))}%")
-
-    # settings = get_project_settings()
-    # settings["FEEDS"] = {
-    #     "test1.json": {"format": "json", "encoding": "utf8", "overwrite": False}
-    # }
-    # settings["LOG_LEVEL"] = "INFO"
-    # links = get_all_links(path=Febpath) + get_all_links(path=Marpath)
-    # process = AS.get_articles(links, settings)
-    # process.start()
-    # datapath = "C:\\Users\\tlebr\\Google Drive\\fdd\\dailynews\\data\\"
-    # with open(datapath + "oldarts.json", "w", encoding="utf-8") as fp:
-    #     s = json.dumps(AS.DICT_LS, ensure_ascii=False, indent="\t")
-    #     fp.write(s)
-    # with open(datapath + "oldarts.csv", "w", encoding="utf-8-sig") as fp:
-    #     writer = csv.DictWriter(fp, fieldnames=AS.DICT_LS[0].keys())
-    #     writer.writeheader()
-    #     for data in AS.DICT_LS:
-    #         writer.writerow(data)

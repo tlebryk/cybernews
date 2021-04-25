@@ -13,13 +13,21 @@ class NewsSpider(scrapy.Spider):
     source = name
     today = datetime.today()
     # NOTE: will eventually come from last time script ran
-    cutoff = today - timedelta(1)
-    custom_settings = {"FEED_EXPORT_ENCODING": "utf-8"}
+    # for now, round down to midnight
+    current_time = timedelta(hours=today.hour, minutes=today.minute + 1)
+    cutoff = today - timedelta(1) - current_time
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:63.0) Gecko/20100101 Firefox/63.0"
     }
 
+    # make sure start_urls and date_check are defined even if None
     def __init__(self, *args, **kwargs):
+        self.start_urls = kwargs.get("start_urls")
+        self.date_check = kwargs.get("date_check")
+        if kwargs.get("articles"):
+            self.articles = kwargs.get("articles")
+        else:
+            self.articles = []
         self.__dict__.update(kwargs)
 
     def start_requests(self):
@@ -64,7 +72,6 @@ class NewsSpider(scrapy.Spider):
     # TODO: Current behavior is to continue;
     # alternative is to break once previous article found
     def in_urls(self, url):
-        print(f"URL in urls: {url in self.recent_urls}\n\n")
         return url in self.recent_urls
 
     def get_tags(self, response):
@@ -86,10 +93,15 @@ class NewsSpider(scrapy.Spider):
     # takes xpath selector return, extracts text, and joins.
     def join_body(self, body):
         body = [extract_text(b.get()) for b in body if b.get()]
-        return "\n".join(body)
+        return "\n\n".join(body)
 
+    # Get_dt should return a datetime object,
+    # which we convert in the article parse section at the end
+    # into a string of format into "Month day, year" format
     def get_dt(self, response):
-        return extract_text(response.css("time").get())
+        dt = extract_text(response.css("time").get())
+        dt = self.strptime(dt, "")
+        return dt
 
     def get_author(self, response):
         author = response.xpath("//meta[contains(@*, 'author')]/@content").get()
@@ -97,22 +109,23 @@ class NewsSpider(scrapy.Spider):
             author = extract_text(response.css(".author").get())
         return self.bycheck(author)
 
-    # TODO: need get_dt to only pass datetime object [check that not passing date]
-    # handle dates not getting found.
-    # If date_check, don't take old articles.
     def art_parse(self, response, dt=None, date_check=True):
         if not dt:
             dt = self.get_dt(response)
         if dt and date_check:
             if dt < self.cutoff:
                 return None
+        # attempt to convert into Month, day, year format
+        if isinstance(dt, date) or isinstance(dt, datetime):
+            dt = dt.strftime("%B %d, %Y")
         art_dict = {
             "title": self.get_title(response),
             "author": self.get_author(response),
-            "date": str(dt),
+            "date": dt,
             "url": response.url,
             "source": self.source,
             "tags": self.get_tags(response),
             "body": self.get_body(response),
         }
+        self.articles.append(art_dict)
         return art_dict

@@ -9,7 +9,7 @@ if __name__ == "__main__":
         "test1.json": {"format": "json", "encoding": "utf8", "overwrite": True}
     }
     settings["ITEM_PIPELINES"] = {"cybernews.pipelines.JsonWritePipeline": 300}
-    # settings["LOG_LEVEL"] = "INFO"
+    settings["LOG_LEVEL"] = "INFO"
     process = CrawlerProcess(settings)
     d = {
         "start_urls": [
