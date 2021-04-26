@@ -39,7 +39,7 @@ class NewsSpider(scrapy.Spider):
 
     # removes by from bylines
     def bycheck(self, author):
-        author = author.split("By")[-1]
+        author = author.split("By ")[-1]
         return author.strip()
 
     # takes date string and format and handles exceptions,
