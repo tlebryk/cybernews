@@ -8,6 +8,7 @@ import json
 import os
 import importlib, inspect
 import time
+from twisted.internet import reactor
 
 t = datetime.today()
 today = t.strftime("%B_%d_%Y")
@@ -16,7 +17,7 @@ path = f"jsons/{today}"
 if not os.path.isdir(path):
     os.mkdir(path)
 settings = get_project_settings()
-process = CrawlerProcess(settings)
+process = CrawlerRunner(settings)
 
 
 def crawler(spiders, *args, **kwargs):
@@ -29,6 +30,8 @@ def crawler(spiders, *args, **kwargs):
             }
         }
         process.crawl(spider, custom_settings=settings, *args, **kwargs)
+    r = process.join()
+    r.addBoth(lambda _: reactor.stop())
     return process
 
 
@@ -36,8 +39,8 @@ def crawler(spiders, *args, **kwargs):
 # for weekends, set cutoff = 3
 def run_all(cutoff=1, *args, **kwargs):
     spiders = [c for _, c in inspect.getmembers(DS, inspect.isclass) if hasattr(c, "daily")]
-    process = crawler(spiders[:4])
-    process.start()
+    crawler(spiders[:4])
+    reactor.run()
     final_dcts = []
     for f in os.listdir(path):
         if f.endswith(".json"):
