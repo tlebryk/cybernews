@@ -20,7 +20,7 @@ settings = get_project_settings()
 process = CrawlerRunner(settings)
 
 
-def crawler(spiders, *args, **kwargs):
+def crawler(spiders, process, *args, **kwargs):
     for spider in spiders:
         settings["FEEDS"] = {
             f"{path}/{spider.source}.json": {
@@ -30,17 +30,16 @@ def crawler(spiders, *args, **kwargs):
             }
         }
         process.crawl(spider, custom_settings=settings, *args, **kwargs)
-    r = process.join()
-    r.addBoth(lambda _: reactor.stop())
     return process
 
 
 # cutoff is a number with number of days to go back
 # for weekends, set cutoff = 3
-def run_all(cutoff=1, *args, **kwargs):
+def run_all(cutoff=1, process=process, *args, **kwargs):
     spiders = [c for _, c in inspect.getmembers(DS, inspect.isclass) if hasattr(c, "daily")]
-    crawler(spiders[:4])
-    reactor.run()
+    return crawler(spiders, process)
+
+def write_final_dict():
     final_dcts = []
     for f in os.listdir(path):
         if f.endswith(".json"):
@@ -64,14 +63,27 @@ def get_todays_js():
     return df
 
 
-def main():
-    run_all()
+def main(process=process):
+    run_all(process=process)
     df = get_todays_js()
     df = rank.sort(df)
-    articles = df.to_dict("records")
-    print(articles)
-    return articles
+    # df = df.loc[:7]
+    articles = df.to_json(orient="records")
+    a = json.loads(articles)
+    return a
 
+
+def full(process=process):
+    r = run_all(process=process)
+    r = process.join()
+    r.addBoth(lambda _: reactor.stop())
+    reactor.run()
+    write_final_dict()
+    df = get_todays_js()
+    df = rank.sort(df)
+    articles = df.to_json(orient="records")
+    a = json.loads(articles)
+    print(a)
 
 if __name__ == "__main__":
-    main()
+    full(process)
