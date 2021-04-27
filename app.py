@@ -30,7 +30,7 @@ scrape_complete = False
 app.config["SECRET_KEY"] = "6f1f6f1c724600453622f48c48555e73"
 td = date.today()
 
-# global for now which allows us to keep track of urls that 
+# global for now which allows us to keep track of urls that
 # our scrapper can't autopopulate
 url_ls = []
 
@@ -56,7 +56,8 @@ def add_article():
         return redirect(url_for("home"))
     return render_template("article_form.html", form=f, legend="Create Post")
 
-# Allows user to add urls 
+
+# Allows user to add urls
 # for select sites, will autopopulate information
 @app.route("/url_form", methods=["POST", "GET"])
 def url_form():
@@ -82,6 +83,12 @@ def delete_post(article_title):
         flash(f"Article not found")
     i, _ = a
     articles.pop(i)
+    return redirect(url_for("home"))
+
+@app.route("/delete_all", methods=["POST"])
+def delete_all():
+    global articles
+    articles = []
     return redirect(url_for("home"))
 
 
@@ -170,7 +177,7 @@ def getdaily():
         flash(f"No articles found", "warning")
         return redirect(url_for("home"))
     df = DR.rank.sort(df)
-    df.date = df.date.dt.strftime('%B %d, %Y')
+    df.date = df.date.dt.strftime("%B %d, %Y")
     arts = df.to_json(orient="records")
     a = json.loads(arts)
     # arts = DR.main(process=crawl_runner)
@@ -187,6 +194,7 @@ def get_results():
     if scrape_complete:
         return articles
     return "Scrape Still Progress"
+
 
 # downloads articles as word document in proper formatting
 @app.route("/export", methods=["POST"])
@@ -215,6 +223,7 @@ def find_art(article_title):
             a = art
             return i, a
 
+
 def url_lookup(url_ls):
     settings = get_project_settings()
     settings["FEEDS"] = {
@@ -223,7 +232,6 @@ def url_lookup(url_ls):
     process = AS.get_articles(url_ls, settings)
     process.start()
     articles.extend(AS.DICT_LS)
-
 
 
 # A callback that is fired after the scrape has completed.
@@ -264,7 +272,6 @@ if __name__ == "__main__":
     factory = server.Site(root_resource)
     http_server = endpoints.TCP4ServerEndpoint(reactor, 5000)
     http_server.listen(factory)
-
 
     # start event loop
     reactor.run()
