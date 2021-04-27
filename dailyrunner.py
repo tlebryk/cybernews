@@ -8,6 +8,7 @@ import json
 import os
 import importlib, inspect
 import time
+from twisted.internet import reactor
 
 t = datetime.today()
 today = t.strftime("%B_%d_%Y")
@@ -15,11 +16,11 @@ current_time = timedelta(hours=t.hour, minutes=t.minute + 1)
 path = f"jsons/{today}"
 if not os.path.isdir(path):
     os.mkdir(path)
+settings = get_project_settings()
+process = CrawlerRunner(settings)
 
 
-def crawler(spiders, *args, **kwargs):
-    settings = get_project_settings()
-    process = CrawlerRunner()
+def crawler(spiders, process, *args, **kwargs):
     for spider in spiders:
         settings["FEEDS"] = {
             f"{path}/{spider.source}.json": {
@@ -34,14 +35,11 @@ def crawler(spiders, *args, **kwargs):
 
 # cutoff is a number with number of days to go back
 # for weekends, set cutoff = 3
-def run_all(cutoff=1, *args, **kwargs):
-    spiders = [
-        cl
-        for _name, cl in inspect.getmembers(DS, inspect.isclass)
-        if hasattr(cl, "daily")
-    ]
-    process = crawler(spiders)
-    # process.start()
+def run_all(cutoff=1, process=process, *args, **kwargs):
+    spiders = [c for _, c in inspect.getmembers(DS, inspect.isclass) if hasattr(c, "daily")]
+    return crawler(spiders, process)
+
+def write_final_dict():
     final_dcts = []
     for f in os.listdir(path):
         if f.endswith(".json"):
@@ -65,14 +63,27 @@ def get_todays_js():
     return df
 
 
-def main():
-    run_all()
+def main(process=process):
+    run_all(process=process)
     df = get_todays_js()
     df = rank.sort(df)
-    articles = df.to_dict("records")
-    print(articles)
-    return articles
+    # df = df.loc[:7]
+    articles = df.to_json(orient="records")
+    a = json.loads(articles)
+    return a
 
+
+def full(process=process):
+    r = run_all(process=process)
+    r = process.join()
+    r.addBoth(lambda _: reactor.stop())
+    reactor.run()
+    write_final_dict()
+    df = get_todays_js()
+    df = rank.sort(df)
+    articles = df.to_json(orient="records")
+    a = json.loads(articles)
+    print(a)
 
 if __name__ == "__main__":
-    main()
+    full(process)

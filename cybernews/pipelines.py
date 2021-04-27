@@ -27,6 +27,7 @@ class CyberNewsPipeline:
 
     def close_spider(self, spider):
         self.file.close()
+        pass
 
 class JsonWritePipeline:
     def open_spider(self, spider):

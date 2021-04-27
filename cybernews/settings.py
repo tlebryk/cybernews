@@ -68,7 +68,7 @@ FEED_EXPORT_ENCODING = "utf-8"
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 # ITEM_PIPELINES = {
-#    'cybernews.pipelines.JsonWritePipeline': 300,
+#    'cybernews.pipelines.CyberNewsPipeline': 300,
 # }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

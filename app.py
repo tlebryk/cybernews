@@ -14,10 +14,14 @@ from cybernews.spiders import art_spider2 as AS2
 from scrapy.utils.project import get_project_settings
 import json
 from scrapy.crawler import CrawlerRunner
+from sys import stdout
+from twisted.logger import globalLogBeginner, textFileLogObserver
+from twisted.web import server, wsgi
+from twisted.internet import endpoints, reactor
 
 
 app = Flask(__name__)
-crawl_runner = CrawlerRunner()
+crawl_runner = CrawlerRunner(settings=get_project_settings())
 scrape_in_progress = False
 scrape_complete = False
 
@@ -159,9 +163,19 @@ def crawl(url_clump):
 
 
 @app.route("/dailyscrape")
-def dailyscrape():
-    arts = DR.main()
-    articles.append(arts)
+def getdaily():
+    try:
+        df = DR.get_todays_js()
+    except ValueError:
+        flash(f"No articles found", "warning")
+        return redirect(url_for("home"))
+    df = DR.rank.sort(df)
+    df.date = df.date.dt.strftime('%B %d, %Y')
+    arts = df.to_json(orient="records")
+    a = json.loads(arts)
+    # arts = DR.main(process=crawl_runner)
+    a = a[::-1]
+    articles.extend(a[:7])
     return redirect(url_for("home"))
 
 
@@ -241,11 +255,7 @@ class ArticleLs:
 
 
 if __name__ == "__main__":
-    from sys import stdout
-    from twisted.logger import globalLogBeginner, textFileLogObserver
-    from twisted.web import server, wsgi
-    from twisted.internet import endpoints, reactor
-
+    # DR.full()
     # start the logger
     globalLogBeginner.beginLoggingTo([textFileLogObserver(stdout)])
 
@@ -254,6 +264,7 @@ if __name__ == "__main__":
     factory = server.Site(root_resource)
     http_server = endpoints.TCP4ServerEndpoint(reactor, 5000)
     http_server.listen(factory)
+
 
     # start event loop
     reactor.run()
