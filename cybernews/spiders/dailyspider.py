@@ -29,7 +29,7 @@ class FCWDaily(AS2.FCWArt):
     source = "FCW"
     daily = True
 
-    custom_settings = settings
+    # custom_settings = settings
 
     def start_requests(self):
         self.start_urls = ["https://fcw.com/Home.aspx"]
@@ -72,7 +72,7 @@ class LawfareDaily(AS2.LawfareArt):
     name = "LawfareDaily"
     souce = "Lawfare"
     daily = True
-    custom_settings = settings
+    # custom_settings = settings
     baseurl = "https://www.lawfareblog.com"
 
     def start_requests(self):
@@ -96,8 +96,7 @@ class LawfareDaily(AS2.LawfareArt):
                 art.xpath(".//div[@class='submitted'][not(@class='username')]/text()")
                 # articles have @class=username tag with author name which [-1] removes
                 # first three chars afterwards are "&nbsp;" so remove with [3:]
-                .getall()[-1][3:]
-                .strip()
+                .getall()[-1][3:].strip()
             )
             dt = self.strptime(dt, "%a, %b %d, %Y, %I:%M %p")
             if dt:
@@ -125,7 +124,7 @@ class LawfareDaily(AS2.LawfareArt):
 class CyberScoopDaily(AS2.CyberScoopArt):
     name = "CyberScoop"
     daily = True
-    custom_settings = settings
+    # custom_settings = settings
 
     def start_requests(self):
         self.start_urls = ["https://www.cyberscoop.com/news/government/"]
@@ -157,7 +156,7 @@ class CyberScoopDaily(AS2.CyberScoopArt):
 class WSJSpiderDaily(AS2.WSJArt):
     name = "Wall Street Journal"
     daily = True
-    custom_settings = settings
+    # custom_settings = settings
 
     def start_requests(self):
         self.start_urls = ["https://www.wsj.com/pro/cybersecurity"]
@@ -178,10 +177,12 @@ class WSJSpiderDaily(AS2.WSJArt):
 class SecAffDaily(AS2.SecAffArt):
     name = "Security Affairs"
     daily = True
-    custom_settings = settings
+    # custom_settings = settings
 
     def start_requests(self):
-        self.start_urls = ["https://securityaffairs.co/wordpress/category/cyber-warfare-2"]
+        self.start_urls = [
+            "https://securityaffairs.co/wordpress/category/cyber-warfare-2"
+        ]
         self.date_check = True
         for url in self.start_urls:
             yield scrapy.Request(url=url, callback=self.parse, headers=self.headers)
@@ -211,7 +212,7 @@ class WiredDaily(AS2.WiredArt):
     name = "Wired"
     baseurl = "https://www.wired.com"
     daily = True
-    custom_settings = settings
+    # custom_settings = settings
 
     def start_requests(self):
         self.start_urls = ["https://www.wired.com/category/security/page/1/"]
@@ -243,7 +244,7 @@ class DefenseOneDaily(AS2.DefenseOneArt):
     name = "Defense One"
     baseurl = "https://www.defenseone.com"
     daily = True
-    custom_settings = settings
+    # custom_settings = settings
 
     def start_requests(self):
         self.start_urls = ["https://www.defenseone.com/topic/cyber/"]
@@ -300,7 +301,7 @@ class ZDNetDaily(AS2.ZDNetArt):
     name = "ZDNet"
     base_url = "https://www.zdnet.com/"
     daily = True
-    custom_settings = settings
+    # custom_settings = settings
 
     def start_requests(self):
         self.start_urls = ["https://www.zdnet.com/topic/security/"]
@@ -323,7 +324,7 @@ class C4ISRNETDaily(AS2.C4ISRNETArt):
     name = "C4ISRNET"
     base_url = "https://www.c4isrnet.com"
     daily = True
-    custom_settings = settings
+    # custom_settings = settings
 
     def start_requests(self):
         self.start_urls = ["https://www.c4isrnet.com/cyber/?source=dfn-nav"]
@@ -349,7 +350,7 @@ class HillDaily(AS2.HillArt):
     name = "The Hill"
     base_url = "https://thehill.com/"
     daily = True
-    custom_settings = settings
+    # custom_settings = settings
 
     def start_requests(self):
         self.start_urls = ["https://thehill.com/policy/cybersecurity"]
@@ -393,7 +394,7 @@ place your login information in pws.py as a dictionary
 #     name = "Inside Cybersecurity"
 #     baseurl = "https://insidecybersecurity.com"
 #     daily = True
-#     custom_settings = settings
+    # custom_settings = settings
 
 
 #     # TODO:change too handling all days after cutoff
