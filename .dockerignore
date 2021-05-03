@@ -1,0 +1,15 @@
+**/notebooks
+.vscode 
+**/.ipynb_checkpoints
+**/__pycacche__
+**/scrap
+**/data
+**/*.docx
+**/*.log
+**/*.csv
+**/*.json
+**/*.git
+**/*.gitignore
+**/*.jl
+**/pws.py
+
