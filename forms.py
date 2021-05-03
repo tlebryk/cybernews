@@ -11,7 +11,7 @@ class ArticleForm(FlaskForm):
     body = TextAreaField("Body", validators=[DataRequired()])
     source = StringField("Source")
     date = StringField("Date of article", validators=[DataRequired()])
-    submit = SubmitField("submit article")
+    submit = SubmitField("Submit article")
 
 
 class AutoPopForm(FlaskForm):
