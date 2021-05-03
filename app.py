@@ -171,18 +171,18 @@ def crawl(url_clump):
 
 @app.route("/dailyscrape")
 def getdaily():
-    try:
-        df = DR.get_todays_js()
-    except ValueError:
-        flash(f"No articles found", "warning")
-        return redirect(url_for("home"))
-    df = DR.rank.sort(df)
-    df.date = df.date.dt.strftime("%B %d, %Y")
-    arts = df.to_json(orient="records")
-    a = json.loads(arts)
-    # arts = DR.main(process=crawl_runner)
-    a = a[::-1]
-    articles.extend(a[:7])
+    # try:
+    #     df = DR.get_todays_js()
+    # except ValueError:
+    #     flash(f"No articles found", "warning")
+    #     return redirect(url_for("home"))
+    # df = DR.rank.sort(df)
+    # df.date = df.date.dt.strftime("%B %d, %Y")
+    # arts = df.to_json(orient="records")
+    # a = json.loads(arts)
+    # # arts = DR.main(process=crawl_runner)
+    # a = a[::-1]
+    # articles.extend(a[:7])
     return redirect(url_for("home"))
 
 
