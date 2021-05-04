@@ -42,6 +42,7 @@ def get_meta(data, server=server, headers=headers):
         "date": date,
         "body": body,
     }
+    print(item)
     return item
 
 

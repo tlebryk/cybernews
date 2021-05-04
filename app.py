@@ -18,6 +18,7 @@ from sys import stdout
 from twisted.logger import globalLogBeginner, textFileLogObserver
 from twisted.web import server, wsgi
 from twisted.internet import endpoints, reactor
+from zotero import get_meta
 
 
 app = Flask(__name__)
@@ -59,22 +60,18 @@ def add_article():
 
 # Allows user to add urls
 # for select sites, will autopopulate information
-@app.route("/url_form", methods=["POST", "GET"])
-def url_form():
-    f = AutoPopForm()
+    f = AutoPopForm(
     if request.method == "POST":
         req = request.form.copy()
         req.pop("submit")
         req.pop("csrf_token")
         global url_ls
         url_ls = [v for v in req.values() if v]
-        url_clump = AS.sort_urls2(url_ls)
-        crawl(url_clump=url_clump)
+        # url_clump = AS.sort_urls2(url_ls)
+        crawl2(url_ls=url_ls)
     if f.validate_on_submit():
         flash(f"Added urls", "success")
         return redirect(url_for("home"))
-    return render_template("url_form.html", form=f, legend="Create Post")
-
 
 @app.route("/post/<article_title>/delete_post", methods=["POST"])
 def delete_post(article_title):
@@ -167,6 +164,14 @@ def crawl(url_clump):
                 **dict(start_urls=clump._url_ls, date_check=False, articles=articles),
             )
         r.addCallback(finished_scrape)
+
+@app.route("/crawl2", methods=['POST', "GET"])
+def crawl2(url_ls):
+    for url in url_ls:
+        articles.append(get_meta(url)) 
+    return redirect(url_for("home"))
+
+
 
 
 @app.route("/dailyscrape")
