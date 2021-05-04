@@ -60,7 +60,9 @@ def add_article():
 
 # Allows user to add urls
 # for select sites, will autopopulate information
-    f = AutoPopForm(
+@app.route("/url_form", methods=["POST", "GET"])
+def url_form():
+    f = AutoPopForm()
     if request.method == "POST":
         req = request.form.copy()
         req.pop("submit")
@@ -72,6 +74,8 @@ def add_article():
     if f.validate_on_submit():
         flash(f"Added urls", "success")
         return redirect(url_for("home"))
+    return render_template("url_form.html", form=f, legend="Create Post")
+
 
 @app.route("/post/<article_title>/delete_post", methods=["POST"])
 def delete_post(article_title):
@@ -165,8 +169,11 @@ def crawl(url_clump):
             )
         r.addCallback(finished_scrape)
 
-@app.route("/crawl2", methods=['POST', "GET"])
+@app.route("/crawl2", methods=['POST'])
+@app.route("/url_form", methods=["POST", "GET"])
+
 def crawl2(url_ls):
+    global articles
     for url in url_ls:
         articles.append(get_meta(url)) 
     return redirect(url_for("home"))

@@ -1,46 +1,68 @@
 import requests
 from datetime import datetime
+from dateutil import parser
+
 
 server = "http://127.0.0.1:1969/web"
 headers = {"content-type": r"text/plain"}
 
 
-def get_meta(data, server=server, headers=headers):
-    r = requests.post(server, data=data, headers=headers)
-    d = r.json()[0]
-    if d['itemType'] == 'webpage':
-        source = d['websiteTitle']
-    else:
-        source = d["publicationTitle"]
-    url = d["url"]
-
-    date = d.get("date")
-    if date:
-        date = datetime.strptime(date[:10], "%Y-%m-%d")
-        date = datetime.strftime(date, "%B %d, %Y")
-    body = d["abstractNote"]
-    title = d["title"]
+def author_parse(cr):
+    def concat_a(author):
+        if author.get("name"):
+            return author["name"]
+        else:
+            return author["firstName"] + " " + author["lastName"]
     author = ""
-    cr = d["creators"]
     if len(cr) > 0:
-        author = author + cr[0]["firstName"] + " " + cr[0]["lastName"]
+        author = author + concat_a(cr[0])
     if len(cr) == 2:
-        author = author + " and " + cr[1]["firstName"] + " " + cr[1]["lastName"]
+        author = author + " and " + concat_a(cr[1])
     elif len(cr) > 2:
         author += ", "
         for c in cr[1:-1]:
-            author = author + c["firstName"] + " " + c["lastName"]+ ","
-        author += " and " 
-        author = author + cr[-1]["firstName"] + " " + cr[-1]["lastName"]
+            author = author + concat_a(c) + ","
+        author += " and "
+        author = author + concat_a(c)
+    return author
 
+
+def get_meta(data, server=server, headers=headers):
+    r = requests.post(server, data=data, headers=headers)
+    d = r.json()[0]
+    try:
+        if d["itemType"] == "webpage":
+            source = d["websiteTitle"]
+        else:
+            source = d["publicationTitle"]
+    except:
+        source = ""
+    url = d["url"]
+
+    dt = d.get("date")
+    date = ""
+    if dt:
+        try:
+            date = datetime.strptime(dt[:10], "%Y-%m-%d")
+            date = datetime.strftime(date, "%B %d, %Y")
+        except ValueError:
+            try:
+                date = parser.parse(dt[:10])
+                date = datetime.strftime(date, "%B %d, %Y")
+            except:
+                print("filler error")
+    
+    body = d.get("abstractNote")
+    title = d.get("title")
+    author = author_parse(d.get("creators"))
 
     item = {
-        "url": url,
-        "title": title,
-        "author": author,
-        "source": source,
-        "date": date,
-        "body": body,
+        "url": str(url),
+        "title": str(title),
+        "author": str(author),
+        "source": str(source),
+        "date": str(date),
+        "body": str(body),
     }
     print(item)
     return item
