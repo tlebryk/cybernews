@@ -14,16 +14,16 @@ def author_parse(cr):
         else:
             return author["firstName"] + " " + author["lastName"]
     author = ""
-    if len(cr) > 0:
+    if cr:
         author = author + concat_a(cr[0])
-    if len(cr) == 2:
-        author = author + " and " + concat_a(cr[1])
-    elif len(cr) > 2:
-        author += ", "
-        for c in cr[1:-1]:
-            author = author + concat_a(c) + ","
-        author += " and "
-        author = author + concat_a(c)
+        if len(cr) == 2:
+            author = author + " and " + concat_a(cr[1])
+        elif len(cr) > 2:
+            author += ", "
+            for c in cr[1:-1]:
+                author = author + concat_a(c) + ","
+            author += " and "
+            author = author + concat_a(c)
     return author
 
 

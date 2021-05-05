@@ -287,3 +287,6 @@ if __name__ == "__main__":
 
     # start event loop
     reactor.run()
+
+    # run docker: 
+    # docker run -d -p 1969:1969 --rm --name translation-server zotero/translation-server
