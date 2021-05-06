@@ -29,32 +29,40 @@ def author_parse(cr):
 
 def get_meta(data, server=server, headers=headers):
     r = requests.post(server, data=data, headers=headers)
-    d = r.json()[0]
-    try:
-        if d["itemType"] == "webpage":
-            source = d["websiteTitle"]
-        else:
-            source = d["publicationTitle"]
-    except:
+    if not r.ok:
+        url = data
+        title = ""
+        author = ""
         source = ""
-    url = d["url"]
-
-    dt = d.get("date")
-    date = ""
-    if dt:
+        date = ""
+        body = ""
+    else:
+        d = r.json()[0]
         try:
-            date = datetime.strptime(dt[:10], "%Y-%m-%d")
-            date = datetime.strftime(date, "%B %d, %Y")
-        except ValueError:
+            if d["itemType"] == "webpage":
+                source = d["websiteTitle"]
+            else:
+                source = d["publicationTitle"]
+        except:
+            source = ""
+        url = d["url"]
+
+        dt = d.get("date")
+        date = ""
+        if dt:
             try:
-                date = parser.parse(dt[:10])
+                date = datetime.strptime(dt[:10], "%Y-%m-%d")
                 date = datetime.strftime(date, "%B %d, %Y")
-            except:
-                print("filler error")
-    
-    body = d.get("abstractNote")
-    title = d.get("title")
-    author = author_parse(d.get("creators"))
+            except ValueError:
+                try:
+                    date = parser.parse(dt[:10])
+                    date = datetime.strftime(date, "%B %d, %Y")
+                except:
+                    print("filler error")
+        
+        body = d.get("abstractNote")
+        title = d.get("title")
+        author = author_parse(d.get("creators"))
 
     item = {
         "url": str(url),
