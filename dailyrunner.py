@@ -1,5 +1,5 @@
 from cybernews.spiders import dailyspider as DS
-import rank
+# import rank
 import pandas as pd
 from scrapy.crawler import CrawlerProcess, CrawlerRunner
 from scrapy.utils.project import get_project_settings
@@ -66,7 +66,7 @@ def get_todays_js():
 def main(process=process):
     run_all(process=process)
     df = get_todays_js()
-    df = rank.sort(df)
+    # df = rank.sort(df)
     # df = df.loc[:7]
     articles = df.to_json(orient="records")
     a = json.loads(articles)
@@ -80,7 +80,7 @@ def full(process=process):
     reactor.run()
     write_final_dict()
     df = get_todays_js()
-    df = rank.sort(df)
+    # df = rank.sort(df)
     articles = df.to_json(orient="records")
     a = json.loads(articles)
     print(a)

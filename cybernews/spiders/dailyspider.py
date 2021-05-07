@@ -14,7 +14,7 @@ import sys
 from scrapy.utils.project import get_project_settings
 
 sys.path.append("C:\\Users\\tlebr\\Google Drive\\fdd\\dailynews\\cybernews\\cybernews")
-import pws
+# import pws
 
 
 converter = html2text.HTML2Text()

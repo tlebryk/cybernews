@@ -1,7 +1,6 @@
 # TODO:
-# 1. article editer
-# 2. Article delete
-# 3. article rerank
+# 1. article rerank
+# 2. Cycle through zotero scraped articles instead of directing home
 
 
 from flask import Flask, render_template, url_for, flash, redirect, request, send_file
@@ -18,6 +17,7 @@ from sys import stdout
 from twisted.logger import globalLogBeginner, textFileLogObserver
 from twisted.web import server, wsgi
 from twisted.internet import endpoints, reactor
+from zotero import get_meta
 
 
 app = Flask(__name__)
@@ -30,7 +30,7 @@ scrape_complete = False
 app.config["SECRET_KEY"] = "6f1f6f1c724600453622f48c48555e73"
 td = date.today()
 
-# global for now which allows us to keep track of urls that 
+# global for now which allows us to keep track of urls that
 # our scrapper can't autopopulate
 url_ls = []
 
@@ -56,7 +56,8 @@ def add_article():
         return redirect(url_for("home"))
     return render_template("article_form.html", form=f, legend="Create Post")
 
-# Allows user to add urls 
+
+# Allows user to add urls
 # for select sites, will autopopulate information
 @app.route("/url_form", methods=["POST", "GET"])
 def url_form():
@@ -67,11 +68,16 @@ def url_form():
         req.pop("csrf_token")
         global url_ls
         url_ls = [v for v in req.values() if v]
-        url_clump = AS.sort_urls2(url_ls)
-        crawl(url_clump=url_clump)
+        # url_clump = AS.sort_urls2(url_ls)
+        result = crawl2(url_ls=url_ls)
+        if not result:
+            flash(f"No urls", "warning")
+            return redirect(url_for("home"))
     if f.validate_on_submit():
+        start, _ = result
         flash(f"Added urls", "success")
-        return redirect(url_for("home"))
+        return redirect(url_for("update_post", 
+            article_title=articles[start]['title']))
     return render_template("url_form.html", form=f, legend="Create Post")
 
 
@@ -82,6 +88,12 @@ def delete_post(article_title):
         flash(f"Article not found")
     i, _ = a
     articles.pop(i)
+    return redirect(url_for("home"))
+
+@app.route("/delete_all", methods=["POST"])
+def delete_all():
+    global articles
+    articles = []
     return redirect(url_for("home"))
 
 
@@ -107,7 +119,15 @@ def update_post(article_title):
         articles.insert(i, req)
     if f.validate_on_submit():
         flash(f"Updated {f.title.data}", "success")
-        return redirect(url_for("home"))
+        if f.homesub.data:
+            return redirect(url_for("home"))
+        if f.nextsub.data:
+            if len(articles) <= i+1:
+                # flash(f"Updated {f.title.data} TESTING", "success")
+                return redirect(url_for("add_article"))
+            else:
+                return redirect(url_for("update_post", 
+                    article_title=articles[i+1]['title']))
     return render_template("article_form.html", form=f, legend="Create Post")
 
 
@@ -139,7 +159,7 @@ def move_down(article_title):
 def post(article_title):
     a = find_art(article_title)
     if not a:
-        flash(f"Article not found")
+        flash("Article not found", "warning")
         return redirect(url_for("home"))
     _, a = a
     return render_template("post.html", title=a["title"], art=a)
@@ -161,6 +181,19 @@ def crawl(url_clump):
             )
         r.addCallback(finished_scrape)
 
+@app.route("/crawl2", methods=['POST'])
+def crawl2(url_ls):
+    global articles
+    start = len(articles)
+    if not url_ls:
+        return False
+    for url in url_ls:
+        articles.append(get_meta(url))
+    return start, len(url_ls) 
+
+
+
+
 
 @app.route("/dailyscrape")
 def getdaily():
@@ -170,7 +203,7 @@ def getdaily():
         flash(f"No articles found", "warning")
         return redirect(url_for("home"))
     df = DR.rank.sort(df)
-    df.date = df.date.dt.strftime('%B %d, %Y')
+    df.date = df.date.dt.strftime("%B %d, %Y")
     arts = df.to_json(orient="records")
     a = json.loads(arts)
     # arts = DR.main(process=crawl_runner)
@@ -187,6 +220,7 @@ def get_results():
     if scrape_complete:
         return articles
     return "Scrape Still Progress"
+
 
 # downloads articles as word document in proper formatting
 @app.route("/export", methods=["POST"])
@@ -215,6 +249,7 @@ def find_art(article_title):
             a = art
             return i, a
 
+
 def url_lookup(url_ls):
     settings = get_project_settings()
     settings["FEEDS"] = {
@@ -223,7 +258,6 @@ def url_lookup(url_ls):
     process = AS.get_articles(url_ls, settings)
     process.start()
     articles.extend(AS.DICT_LS)
-
 
 
 # A callback that is fired after the scrape has completed.
@@ -265,6 +299,8 @@ if __name__ == "__main__":
     http_server = endpoints.TCP4ServerEndpoint(reactor, 5000)
     http_server.listen(factory)
 
-
     # start event loop
     reactor.run()
+
+    # run docker: 
+    # docker run -d -p 1969:1969 --rm --name translation-server zotero/translation-server
