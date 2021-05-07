@@ -23,10 +23,10 @@
                     {% include 'down-arrow.html' %}
                 </form>
             </div>
-            <button type="button" class="btn btn-danger m-1" data-toggle="modal" data-target="#deleteModal">
+            <!-- <button type="button" class="btn btn-danger m-1" data-toggle="modal" data-target="#deleteModal">
                 {% include 'trash-button.html' %}
-            </button>
-            {% include 'delete-modal.html' %}
+                {% include 'delete-modal.html' %}
+            </button> -->
         </div>
     </div>
 </article>
@@ -41,9 +41,13 @@
         <form action="{{ url_for('background_export') }}" method="post">
             <button class='btn btn-outline-info' type="submit">Export</button>
         </form>
-        <form action="{{ url_for('delete_all') }}" method="post">
-            <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal"> Delete all {% include 'trash-button.html' %} </button>
-        </form>
+        <button type="button" class="btn btn-danger m-1" data-toggle="modal" data-target="#deleteModal2">
+            Delete all {% include 'trash-button.html' %}
+        </button>
+        {% include 'delete-modal2.html' %}
+        <!-- <form action="{{ url_for('delete_all') }}" method="post"> -->
+            <!-- <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal2"> Delete all {% include 'trash-button.html' %} </button> -->
+        <!-- </form> -->
         {% endif %}
 
     </div>
