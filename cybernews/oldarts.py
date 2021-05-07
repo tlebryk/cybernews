@@ -9,44 +9,23 @@ from dateutil import parser
 import json
 import csv
 import logging
-import traceback
-from spiders import articlesspider as AS
-from scrapy.crawler import CrawlerProcess
-from scrapy.crawler import CrawlerRunner
-from scrapy.utils.project import get_project_settings
-from itemadapter import ItemAdapter
-from itertools import groupby
-import win32com.client as win32
 
 Aprilpath = "C:/Users/tlebr/OneDrive - DEFDEM/Theo Lebryk/Daily Clippings/April/"
 Maypath = "C:/Users/tlebr/OneDrive - DEFDEM/Theo Lebryk/Daily Clippings/May/"
 # path2016 = r"C:\Users\tlebr\OneDrive - DEFDEM\Theo Lebryk\OneDrive_2021-04-01\Research - Daily Clips\2017/"
 
 logging.basicConfig(
-    filename="oldarts.log", encoding="utf-8", filemode="w", level=logging.DEBUG
+    filename="logs/oldarts.log", encoding="utf-8", filemode="w", level=logging.DEBUG
 )
-# returns list of tuples (url, ranking, filename)
-def get_all_links(path):
-    links = []
-    for filename in os.listdir(path):
-        f = path + filename
-        with zipfile.ZipFile(f) as z:
-            d = z.read("word/document.xml")
-        xml_str = str(d)
-        # [1:] gets rid of microsoft random urls
-        link_list = re.findall(r"http.*?\<", xml_str)[1:]
-        # strips trailing ">" from urls
-        link_list = [(x[:-1], i + 1, filename) for i, x in enumerate(link_list)]
-        links += link_list
-    return links
+
 
 def get_doc_links(docpath):
     with zipfile.ZipFile(docpath) as z:
         d = z.read("word/document.xml")
     xml_str = str(d)
-    # [1:] gets rid of microsoft random urls
     link_list = re.findall(r"<w:t>http.*?\<", xml_str)
     # strips leading <w:t> and trailing ">" from urls
+    # first 5 and last link should we word internal links?
     link_list = [x[5:-1] for x in link_list]
     return link_list
 
@@ -82,9 +61,9 @@ def get_meta(d):
                     # last two elements in "month day, year" format
                     # to export to json, convert to date then reconvert to string
                     'date' : str(dt),
-                    # thrid to last element should be source
-                    'source' : m_list[-3],
                     'author' : m_list[:-3],
+                    # third to last element should be source
+                    'source' : m_list[-3],
                 }
                 result.append(dct)
     return result
