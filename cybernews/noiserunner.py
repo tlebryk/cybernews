@@ -1,3 +1,4 @@
+"""Script to get random irrelevant articles"""
 from spiders import noise
 import pandas as pd
 from scrapy.crawler import CrawlerProcess

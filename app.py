@@ -1,8 +1,3 @@
-# TODO:
-# 1. article rerank
-# 2. Cycle through zotero scraped articles instead of directing home
-
-
 from flask import Flask, render_template, url_for, flash, redirect, request, send_file
 from forms import ArticleForm, AutoPopForm
 import exportword
@@ -18,7 +13,7 @@ from twisted.logger import globalLogBeginner, textFileLogObserver
 from twisted.web import server, wsgi
 from twisted.internet import endpoints, reactor
 from zotero import get_meta
-
+import rank
 
 app = Flask(__name__)
 crawl_runner = CrawlerRunner(settings=get_project_settings())
@@ -202,12 +197,17 @@ def getdaily():
     except ValueError:
         flash(f"No articles found", "warning")
         return redirect(url_for("home"))
-    df = DR.rank.sort(df)
-    df.date = df.date.dt.strftime("%B %d, %Y")
+    df = rank.sort(df)
+    # df.date = df.date.dt.strftime("%B %d, %Y")
     arts = df.to_json(orient="records")
+    df.date = str(df.date)
     a = json.loads(arts)
     # arts = DR.main(process=crawl_runner)
     a = a[::-1]
+    for el in a:
+        for key, value in el.items():
+            el[key] = str(value)
+    # [print(type(x), x) for x in a[1].values()]
     articles.extend(a[:7])
     return redirect(url_for("home"))
 

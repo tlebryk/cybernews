@@ -1,4 +1,4 @@
-# module for exportword.py
+"""Utility functions for formatting word output of daily briefings"""
 import docx
 from docx.enum.dml import MSO_THEME_COLOR_INDEX
 

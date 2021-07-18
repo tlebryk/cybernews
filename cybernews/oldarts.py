@@ -1,4 +1,4 @@
-# Script to get old daily clippings to train ranking model
+""" Script to get old daily clippings to train ranking model"""
 import os
 import zipfile
 import xml.etree.ElementTree as ET

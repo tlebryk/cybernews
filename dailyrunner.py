@@ -1,3 +1,5 @@
+
+"""Script to scrap news articles every day"""
 from cybernews.spiders import dailyspider as DS
 # import rank
 import pandas as pd

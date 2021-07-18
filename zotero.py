@@ -1,9 +1,11 @@
+"""Utility functions for parsing results of zotero translation server"""
+
 import requests
 from datetime import datetime
 from dateutil import parser
 
 
-server = "http://127.0.0.1:1969/web"
+server = "http://trans:1969/web"
 headers = {"content-type": r"text/plain"}
 
 
@@ -77,6 +79,7 @@ def get_meta(data, server=server, headers=headers):
 
 
 if __name__ == "__main__":
+    # testing
     data = "https://www.washingtonpost.com/world/2021/05/04/mexico-city-metro-train-platform-collapse/"
     item = get_meta(data, server=server, headers=headers)
     print(item)

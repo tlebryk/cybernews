@@ -1,3 +1,21 @@
+"""Spider for individual articles
+
+Currently supporting: 
+    - FCW
+    - Lawfare
+    - CyberScoop
+    - WSJ
+    - SecAffDaily
+    - Wired
+    - DefenseOne
+    - ZDNet
+    - C4ISRNET
+    - The Hill
+
+In progress (bugs):
+    - InsideCyberSecurity
+    - Bloomberg
+"""
 import scrapy
 from datetime import date, datetime, timedelta
 from html_text import extract_text

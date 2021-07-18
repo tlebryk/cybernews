@@ -1,4 +1,4 @@
-# given JSON, writes json into desired word format. 
+"""Script to export daily briefing into a word document"""
 
 from docx import Document
 import json

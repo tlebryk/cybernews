@@ -1,3 +1,4 @@
+"""Generic Spider to get news article metadata"""
 import scrapy
 from datetime import date, datetime, timedelta
 from html_text import extract_text

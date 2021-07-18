@@ -1,3 +1,4 @@
+"""Spider which assists with collecting old news articles"""
 from .newsspider import NewsSpider
 from . import dailyspider as DS
 from . import art_spider2 as AS2

@@ -1,4 +1,23 @@
-# TODO: change settings to encode using utf-8 (which is what extract text uses)
+""" Specific spiders news homepages which redirect to individual articles
+
+Currently supporting: 
+    - FCW
+    - Lawfare
+    - CyberScoop
+    - WSJ
+    - SecAffDaily
+    - Wired
+    - DefenseOne
+    - ZDNet
+    - C4ISRNET
+    - The Hill
+
+In progress (bugs):
+    - InsideCyberSecurity
+    - Bloomberg
+
+"""
+#  TODO: change settings to encode using utf-8 (which is what extract text uses)
 # TODO: uncomment project root imports
 import scrapy
 from datetime import date, datetime, timedelta
