@@ -41,7 +41,7 @@ class FCWArt(NewsSpider):
     source = "FCW"
 
     def parse(self, response):
-        self.art_parse(response, dt=None, date_check=self.date_check)
+        return self.art_parse(response, dt=None, date_check=self.date_check)
 
     def get_dt(self, response):
         d = extract_text(response.css("li.date").get())

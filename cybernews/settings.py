@@ -6,6 +6,9 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+from datetime import datetime
+
+NOW = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 BOT_NAME = 'cybernews'
 
@@ -16,13 +19,18 @@ NEWSPIDER_MODULE = 'cybernews.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'cybernews (+http://www.yourdomain.com)'
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:63.0) Gecko/20100101 Firefox/63.0"
+# 'cybernews (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
 FEED_EXPORT_ENCODING = "utf-8"
 
+
+LOG_FILE = f"cybernews/logs/spider_{NOW}.log"
+
+LOG_FORMAT = "%(asctime)s %(levelname)-8s %(filename)s %(lineno)d %(message)s"
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32

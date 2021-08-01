@@ -25,6 +25,12 @@ class NewsSpider(scrapy.Spider):
     def __init__(self, *args, **kwargs):
         self.start_urls = kwargs.get("start_urls")
         self.date_check = kwargs.get("date_check")
+        if type(self.date_check) == str:
+            self.logger.info(f"found string in datecheck {self.date_check}")
+            if self.date_check.lower() == "false":
+                self.logger.info(f"Changing date_check to false:")
+                kwargs["date_check"] = False
+                # self.date_check = False
         if kwargs.get("articles"):
             self.articles = kwargs.get("articles")
         else:
@@ -36,7 +42,7 @@ class NewsSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse, headers=self.headers)
 
     def parse(self, response):
-        pass
+        return self.art_parse(response, dt=None, date_check=self.date_check)
 
     # removes by from bylines
     def bycheck(self, author):
@@ -81,11 +87,13 @@ class NewsSpider(scrapy.Spider):
     def get_title(self, response, splitchar=None, splitchar2=None):
         title = extract_text(response.css("title").get())
         if splitchar:
-            title = title.split(splitchar)[0]
+            title = title.split(splitchar)[:-1]
+            title = " ".join(title)
         if not title:
             title = extract_text(response.css(".title").get())
             if splitchar2:
-                title = title.split(splitchar2)[0]
+                title = title.split(splitchar2)[:-1]
+                title = " ".join(title)
         return title
 
     def get_body(self, response):
@@ -114,6 +122,7 @@ class NewsSpider(scrapy.Spider):
         if not dt:
             dt = self.get_dt(response)
         if dt and date_check:
+            self.logger.info(f"date check after being checked... {date_check}")
             if dt < self.cutoff:
                 return None
         # attempt to convert into Month, day, year format
