@@ -51,7 +51,7 @@ class NewsSpider(scrapy.Spider):
 
     # takes date string and format and handles exceptions,
     # returns "None" if cannot convert datetime
-    def strptime(self, d, format1):
+    def strptime(self, d, format1="", **kwargs):
         if not d:
             return None
         dt = None
@@ -60,7 +60,7 @@ class NewsSpider(scrapy.Spider):
         except Exception as ex:
             self.logger.error(("formated try 1 failed :", ex))
             try:
-                dt = parser.parse(d)
+                dt = parser.parse(d, **kwargs)
             except Exception as ex:
                 self.logger.error(("pareser try 2: %s", ex))
         finally:
@@ -107,9 +107,9 @@ class NewsSpider(scrapy.Spider):
     # Get_dt should return a datetime object,
     # which we convert in the article parse section at the end
     # into a string of format into "Month day, year" format
-    def get_dt(self, response):
+    def get_dt(self, response, **kwargs):
         dt = extract_text(response.css("time").get())
-        dt = self.strptime(dt, "")
+        dt = self.strptime(dt, format1="", **kwargs)
         return dt
 
     def get_author(self, response):
