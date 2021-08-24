@@ -97,7 +97,11 @@ class NewsSpider(scrapy.Spider):
         return title
 
     def get_body(self, response):
-        return extract_text(response.css(".body").get())
+        body = extract_text(response.css("div.article-inner-content").get())
+        if body:
+            return body
+        else:
+            return extract_text(response.css(".body").get())
 
     # takes xpath selector return, extracts text, and joins.
     def join_body(self, body):

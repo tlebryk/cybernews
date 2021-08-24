@@ -282,6 +282,30 @@ class BloombergArt(NewsSpider):
 class RudawArt(NewsSpider):
     name = "RudawArt"
     source = 'Rudaw'
+    # TODO: commment out later
+    custom_settings = {
+        "FEEDS" :  {
+            f"cybernews/data/{name}.csv": {
+            "format": "csv",
+            "encoding": "utf8",
+            }
+        }
+    }
+    headers = {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Connection": "keep-alive",
+        "DNT": "1",
+        "Host": "www.rudaw.net",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Sec-GPC": "1",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0",
+    }
 
     def __init__(self, *args, **kwargs):
         path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
@@ -293,22 +317,6 @@ class RudawArt(NewsSpider):
 
 
     def start_requests(self):
-        self.headers = {
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'en-US,en;q=0.9',
-            'cache-control': 'max-age=0',
-            # cookie: ASP.NET_SessionId=zvfwct2ywujvc4otxbjnrjq5; SkwidCookie=LastViewedPage=0_&UserSessionID=zvfwct2ywujvc4otxbjnrjq5&PVC-0-0=1; __RequestVerificationToken=4erM-E4PYQYIZKmrfPRI2E9xfJ0cs_dViZtfuO7x0cd2Ucs9c6jGpI-hUEaibX2jUsz_nFlc7fYidskBdoIqem8vgAQ1; visid_incap_619968=F4tw2vMfQg65Xtm8BtXZbBVODWEAAAAAQUIPAAAAAABxPeL72OxKxutQ0QX0osHK; incap_ses_1417_619968=PilFBirFvC0lDA8EGjKqExZODWEAAAAAWL/TG1C2X+sK43Mh+R8tAQ==; _clck=1awf2sb|1; _clsk=qjwk6w|1628263959607|5|1|eus2/collect|www.clarity.ms,
-            'dnt': '1',
-            'sec-ch-ua': '"Chromium";v="92", " Not A;Brand";v="99", "Microsoft Edge";v="92"',
-            'sec-ch-ua-mobile': '?1',
-            'sec-fetch-dest': 'document',
-            'sec-fetch-mode': 'navigate',
-            'sec-fetch-site': 'none',
-            'sec-fetch-user': '?1',
-            'upgrade-insecure-requests': '1',
-            'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Mobile Safari/537.36 Edg/92.0.902.62',
-        }
         return super().start_requests()
 
     def parse(self, response):
@@ -336,3 +344,163 @@ class RudawArt(NewsSpider):
 
     def get_dt(self, response):
         return self.strptime(extract_text(response.css("span.date").get()))
+
+class JPostArt(NewsSpider):
+    name = "JPostArt"
+    source = 'The Jerusalem Post'
+    custom_settings = {
+        "FEEDS" :  {
+            f"data/{name}.csv": {
+            "format": "csv",
+            "encoding": "utf8",
+            }
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
+        df2 = pd.read_excel(path2)
+        stories = df2[df2.Source.str.lower().str.strip() == "the jerusalem post"]
+        stories = stories[stories.Url.notna()]
+        kwargs["start_urls"] = [str(url) for url in list(stories.Url)][:2]
+        super().__init__(*args, **kwargs)
+
+    def parse(self, response):
+        # self.logger.info("hit bloom parse")
+        # open_in_browser(response)
+        # inspect_response(response, self) 
+        return super().parse(response)
+
+    def get_tags(self, response):
+        return response.css("a.tag::text").getall()
+
+    def get_author(self, response):
+        author = super().get_author(response)
+        author = author.split("\n")[0]
+        author = author.title()
+        return author
+
+    def get_title(self, response, splitchar="-", splitchar2=None):
+        return super().get_title(response, splitchar=splitchar, splitchar2=splitchar2)
+
+    def get_body(self, response):
+        body = response.xpath("//div[contains(@class, 'article-inner-content') and not(self::script)]")
+        body = body.xpath(".//node()[not(ancestor-or-self::script) and not(ancestor-or-self::*[contains(@class, 'hide-for-premium')]) and not(ancestor-or-self::template)]")
+        body = self.join_body(body)
+        return body
+
+    def get_dt(self, response):
+        dt = extract_text(response.css("div.article-subline-name").get())
+        dt = self.strptime(dt, "")
+        return dt
+
+
+class ReliefWebArt(NewsSpider):
+    name = "ReliefWebArt"
+    source = 'Relief Web'
+    custom_settings = {
+        "FEEDS" :  {
+            f"data/{name}.csv": {
+            "format": "csv",
+            "encoding": "utf8",
+            }
+        }
+    }
+
+    def parse(self, response):
+        # inspect_response(response, self) 
+        return super().parse(response)
+
+    def __init__(self, *args, **kwargs):
+        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx" 
+        df2 = pd.read_excel(path2)
+        stories = df2[df2.Source.str.lower().str.strip() == "relief web"]
+        stories = stories[stories.Url.notna()]
+        kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
+        super().__init__(*args, **kwargs)
+
+    def get_tags(self, response):
+        tags = response.css("dd.theme")
+        tags = tags.css("li")
+        tags = [extract_text(t.get()) for t in tags]
+        return tags
+
+    def get_author(self, response):
+        return ""
+
+    def get_title(self, response, splitchar=None, splitchar2=None):
+        return extract_text(response.xpath("//article/header/h2").get())
+        # return super().get_title(response, splitchar=splitchar, splitchar2=splitchar2)
+
+    def get_body(self, response):
+        body = response.css("div.content")
+        body = body.css("div.content")
+        body = body.css("p")
+        return self.join_body(body)
+
+    def get_dt(self, response):
+        return super().get_dt(response)
+
+
+class WaPoArt(NewsSpider):
+    name = "WaPoArt"
+    source = 'The Washington Post'
+    custom_settings = {
+        "FEEDS" :  {
+            f"data/{name}.csv": {
+            "format": "csv",
+            "encoding": "utf8",
+            }
+        }
+    }
+    headers = {
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "en-US,en;q=0.9",
+        "cache-control": "max-age=0",
+        # cookie: wp_devicetype=0; wp_ak_osn=1|20210505; wp_ak_v_v=0|20210407; rplampr=0a|20181213; wp_ak_v_m=0|20210519; wp_geo=US|VA|511|20146-20149|; wp_country=US; ak_bmsc=6BC8706FEBB4CC89F56DF95DEDC8426D~000000000000000000000000000000~YAAQQ2UzuHxqjnh7AQAAY5CaeAxIfx7Aa92ZIPibcyzdTTzhADrl9KnW58+F4XzWc01fvnXn47qOmCPzdxg2tXVyzIwNd6jsRGG0IRlLMc2FxUNK0PQaGuRPaQOw7shugB+fUEx/h6BItZQFyGv3j4kTaREnrazR6bF9+fLWFVvg1k4nZrduuh7NB5rQoaGaY9UvepTAgB3vlNwUXNOeP+bZOL0HNrFSSl7Vqf0I95/hrXVp9b8oP9ry15/xtf8ZYayWGVdKBPxhPnHLJ63x7l8qptlbzclVcsExRvm04YQimsn3iiQ2n3LfSvY79eRacWQQ4ViLaedzOedSJuM9+erEjq9eHZnwqgUNBYaYaKQ54HbEllt7+vRxRJW/1GhpTpuVs9wWplcTrHgJb0EGGBo=; rpisb=rBEAA2ElBMFNbAAfb8eCAg==; wp_ak_bt=1|20200518; wp_ak_bfd=1|20201222; wp_ak_pp=1|20210310; washpost_poe=true; akaas_magnet-test=1632408035~rv=96~id=6a68490ea8099ce6ba3207205e7d9783~rn=; wp_pwapi_ar="H4sIAAAAAAAA/13LsRXAIAgFwF2oUwgI+rONIk6QLs/d0+f6e2muSN8d4YAqC1Y1eHdEaF10v/TQTeyCzl4Kmwqdi5AaaWhDdwqXPZphz2qckV3/Tb2J0TkfB5l4am8AAAA="; wp_usp=1---; bm_sv=E6859BB465ECC6C1B05DCCAFE46813BE~lGtBJPEIxOseokHkftMth12xWxpKEc/QuGzpOJNxwFsh3fcJ80bcqwHeQT4fJ4iwkEURCmrNYigAeq/wVC+2VU8RFG8gRTZvWfmu7oD4GJs9PvJbivjArGnsMD9lkEJSK+5C4JqaufjX1RwScCGDHEu3ww/Lmkd+ISNQdzsXGqQ=
+        "dnt": "1",
+        "sec-ch-ua": '"Chromium";v="92", " Not A;Brand";v="99", "Microsoft Edge";v="92"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "same-origin",
+        "sec-fetch-user": "?1",
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36 Edg/92.0.902.78",
+        
+    }
+
+    def __init__(self, *args, **kwargs):
+        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx" 
+        df2 = pd.read_excel(path2)
+        stories = df2[df2.Source.str.lower().str.strip() == "the washington post"]
+        stories = stories[stories.Url.notna()]
+        kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
+        super().__init__(*args, **kwargs)
+
+    def parse(self, response):
+        # inspect_response(response, self) 
+        return super().parse(response)
+        
+
+    def get_tags(self, response):
+        return super().get_tags(response)
+
+    def get_author(self, response):
+        authors = response.xpath("//span[@data-sc-c='author']")[0]
+        authors = authors.xpath(".//*[contains(@data-qa, 'author-name')]")
+        authors = [extract_text(a.get()) for a in authors]
+        return authors
+
+    def get_title(self, response, splitchar="-", splitchar2=None):
+        return super().get_title(response, splitchar=splitchar, splitchar2=splitchar2)
+
+    def get_body(self, response):
+        body = response.css("div.article-body")
+        body = body.css("p.font--article-body")
+        return self.join_body(body)
+
+    def get_dt(self, response):
+        dt = extract_text(response.xpath("//span[contains(@data-qa, 'display-date')]").get())
+        return self.strptime(dt)
