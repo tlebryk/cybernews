@@ -8,6 +8,7 @@
 from itemadapter import ItemAdapter
 import json
 from datetime import date
+from scrapy.exceptions import DropItem
 
 today = date.today().strftime(r"%B_%d_%Y")
 
@@ -38,3 +39,21 @@ class JsonWritePipeline:
 
     def process_item(self, item, spider):
         return item
+
+class DeDupePipeline:
+
+    def __init__(self) -> None:
+        self.urls = set()
+
+    def process_item(self, item, spider):
+        if item["url"] in self.urls:
+            raise DropItem(f"Duplicate url found in {item}")
+        else:
+            self.urls.add(item["url"])
+            return item
+            # scrapy.exceptions.DropI
+
+
+    def open_spider(self, spider):
+
+    def close_spider(self, spider):

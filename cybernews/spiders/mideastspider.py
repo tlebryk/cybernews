@@ -66,8 +66,16 @@ class ReutersArt(NewsSpider):
     name = "ReutersArt"
     source = "Reuters"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+
+    # def __init__(self, *args, **kwargs):
+    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
+    #     df2 = pd.read_excel(path2)
+    #     reuters = df2[df2.Source.str.lower().str.strip() == "reuters"]
+    #     reuters = reuters[reuters.Url.notna()]
+    #     kwargs["start_urls"] = [str(url) for url in list(reuters.Url)]
+    #     self.articles = []
+    #     super().__init__(*args, **kwargs)
+    #     # self.date_check = False
 
     def get_title(self, response, splitchar="|", splitchar2=None):
         return super().get_title(response, splitchar=splitchar, splitchar2=splitchar2)
@@ -81,15 +89,6 @@ class ReutersArt(NewsSpider):
         body =  response.css("p.Paragraph-paragraph-2Bgue")
         return self.join_body(body)
 
-    def __init__(self, *args, **kwargs):
-        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-        df2 = pd.read_excel(path2)
-        reuters = df2[df2.Source.str.lower().str.strip() == "reuters"]
-        reuters = reuters[reuters.Url.notna()]
-        kwargs["start_urls"] = [str(url) for url in list(reuters.Url)]
-        self.articles = []
-        super().__init__(*args, **kwargs)
-        # self.date_check = False
     
     def parse(self, response):
         return self.art_parse(response, dt=None, date_check=self.date_check)
@@ -100,14 +99,14 @@ class AlmontArt(NewsSpider):
     name = "AlmontArt"
     source = "Al-monitor"
 
-    def __init__(self, *args, **kwargs):
-        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-        df2 = pd.read_excel(path2)
-        stories = df2[df2.Source.str.lower().str.strip() == "al-monitor"]
-        stories = stories[stories.Url.notna()]
-        kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
-        self.articles = []
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
+    #     df2 = pd.read_excel(path2)
+    #     stories = df2[df2.Source.str.lower().str.strip() == "al-monitor"]
+    #     stories = stories[stories.Url.notna()]
+    #     kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
+    #     self.articles = []
+    #     super().__init__(*args, **kwargs)
 
 
     def get_title(self, response, splitchar="-", splitchar2=None):
@@ -129,13 +128,13 @@ class SPGlobalArt(NewsSpider):
     name = "SPGlobalArt"
     source = 'S&P Global Platts'
 
-    def __init__(self, *args, **kwargs):
-        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-        df2 = pd.read_excel(path2)
-        stories = df2[df2.Source.str.lower().str.strip() == "s&p global platts"]
-        stories = stories[stories.Url.notna()]
-        kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
+    #     df2 = pd.read_excel(path2)
+    #     stories = df2[df2.Source.str.lower().str.strip() == "s&p global platts"]
+    #     stories = stories[stories.Url.notna()]
+    #     kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
+    #     super().__init__(*args, **kwargs)
 
     def get_tags(self, response):
         tags = response.xpath("//meta[contains(@property, 'commodity')]/@content").get()
@@ -165,13 +164,13 @@ class APArt(NewsSpider):
     name = "APArt"
     source = 'AP News'
 
-    def __init__(self, *args, **kwargs):
-        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-        df2 = pd.read_excel(path2)
-        stories = df2[df2.Source.str.lower().str.strip() == "ap news"]
-        stories = stories[stories.Url.notna()]
-        kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
+    #     df2 = pd.read_excel(path2)
+    #     stories = df2[df2.Source.str.lower().str.strip() == "ap news"]
+    #     stories = stories[stories.Url.notna()]
+    #     kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
+    #     super().__init__(*args, **kwargs)
 
     def get_tags(self, response):
         tags = response.css("li.tag")
@@ -199,13 +198,13 @@ class AlJazeeraArt(NewsSpider):
     name = "AlJazeeraArt"
     source = 'Al Jazeera'
 
-    def __init__(self, *args, **kwargs):
-        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-        df2 = pd.read_excel(path2)
-        stories = df2[df2.Source.str.lower().str.strip() == "al jazeera"]
-        stories = stories[stories.Url.notna()]
-        kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
+    #     df2 = pd.read_excel(path2)
+    #     stories = df2[df2.Source.str.lower().str.strip() == "al jazeera"]
+    #     stories = stories[stories.Url.notna()]
+    #     kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
+    #     super().__init__(*args, **kwargs)
 
     def get_tags(self, response):
         return super().get_tags(response)
@@ -228,13 +227,13 @@ class BloombergArt(NewsSpider):
     name = "BloombergArt"
     source = 'Bloomberg'
 
-    def __init__(self, *args, **kwargs):
-        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-        df2 = pd.read_excel(path2)
-        stories = df2[df2.Source.str.lower().str.strip() == "bloomberg"]
-        stories = stories[stories.Url.notna()]
-        kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
+    #     df2 = pd.read_excel(path2)
+    #     stories = df2[df2.Source.str.lower().str.strip() == "bloomberg"]
+    #     stories = stories[stories.Url.notna()]
+    #     kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
+    #     super().__init__(*args, **kwargs)
 
     def start_requests(self):
         self.headers = {
@@ -307,13 +306,13 @@ class RudawArt(NewsSpider):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0",
     }
 
-    def __init__(self, *args, **kwargs):
-        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-        df2 = pd.read_excel(path2)
-        stories = df2[df2.Source.str.lower().str.strip() == "rudaw"]
-        stories = stories[stories.Url.notna()]
-        kwargs["start_urls"] = [str(url) for url in list(stories.Url)][-2:]
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
+    #     df2 = pd.read_excel(path2)
+    #     stories = df2[df2.Source.str.lower().str.strip() == "rudaw"]
+    #     stories = stories[stories.Url.notna()]
+    #     kwargs["start_urls"] = [str(url) for url in list(stories.Url)][-2:]
+    #     super().__init__(*args, **kwargs)
 
 
     def start_requests(self):
@@ -357,13 +356,13 @@ class JPostArt(NewsSpider):
         }
     }
 
-    def __init__(self, *args, **kwargs):
-        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-        df2 = pd.read_excel(path2)
-        stories = df2[df2.Source.str.lower().str.strip() == "the jerusalem post"]
-        stories = stories[stories.Url.notna()]
-        kwargs["start_urls"] = [str(url) for url in list(stories.Url)][:2]
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
+    #     df2 = pd.read_excel(path2)
+    #     stories = df2[df2.Source.str.lower().str.strip() == "the jerusalem post"]
+    #     stories = stories[stories.Url.notna()]
+    #     kwargs["start_urls"] = [str(url) for url in list(stories.Url)][:2]
+    #     super().__init__(*args, **kwargs)
 
     def parse(self, response):
         # self.logger.info("hit bloom parse")
@@ -411,13 +410,13 @@ class ReliefWebArt(NewsSpider):
         # inspect_response(response, self) 
         return super().parse(response)
 
-    def __init__(self, *args, **kwargs):
-        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx" 
-        df2 = pd.read_excel(path2)
-        stories = df2[df2.Source.str.lower().str.strip() == "relief web"]
-        stories = stories[stories.Url.notna()]
-        kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx" 
+    #     df2 = pd.read_excel(path2)
+    #     stories = df2[df2.Source.str.lower().str.strip() == "relief web"]
+    #     stories = stories[stories.Url.notna()]
+    #     kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
+    #     super().__init__(*args, **kwargs)
 
     def get_tags(self, response):
         tags = response.css("dd.theme")
@@ -471,13 +470,13 @@ class WaPoArt(NewsSpider):
         
     }
 
-    def __init__(self, *args, **kwargs):
-        path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx" 
-        df2 = pd.read_excel(path2)
-        stories = df2[df2.Source.str.lower().str.strip() == "the washington post"]
-        stories = stories[stories.Url.notna()]
-        kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx" 
+    #     df2 = pd.read_excel(path2)
+    #     stories = df2[df2.Source.str.lower().str.strip() == "the washington post"]
+    #     stories = stories[stories.Url.notna()]
+    #     kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
+    #     super().__init__(*args, **kwargs)
 
     def parse(self, response):
         # inspect_response(response, self) 

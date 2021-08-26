@@ -1,4 +1,5 @@
 """Generic Spider to get news article metadata"""
+import logging
 import scrapy
 from datetime import date, datetime, timedelta
 from html_text import extract_text
@@ -20,17 +21,28 @@ class NewsSpider(scrapy.Spider):
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:63.0) Gecko/20100101 Firefox/63.0"
     }
+    # Not fully implemented: need to test as a check during start_requests? 
+    # open question: what if urls aren't chronological? 
+    # should have a "is_chronological" arg that defaults to true for each daily. 
+    stopcollection = False
 
     # make sure start_urls and date_check are defined even if None
     def __init__(self, *args, **kwargs):
-        self.start_urls = kwargs.get("start_urls")
-        self.date_check = kwargs.get("date_check")
+        if kwargs.get("start_urls"):
+            self.start_urls = kwargs.pop("start_urls")
+        if not hasattr(self, "date_check"):
+            self.date_check = kwargs.pop("date_check")
         if type(self.date_check) == str:
             self.logger.info(f"found string in datecheck {self.date_check}")
             if self.date_check.lower() == "false":
                 self.logger.info(f"Changing date_check to false:")
                 kwargs["date_check"] = False
-                # self.date_check = False
+                # default for a string is True so any string other than false will return true
+        if kwargs.get("cutoff"):
+            self.logger.info(f"kwarg cutoff: {kwargs.get('cutoff')}")
+            if self.strptime(kwargs.get("cutoff")):
+                self.logger.info(f"kwarg strptime: {self.strptime(kwargs.get('cutoff'))}")
+                self.cutoff = self.strptime(kwargs.pop("cutoff"))
         if kwargs.get("articles"):
             self.articles = kwargs.get("articles")
         else:
@@ -42,6 +54,7 @@ class NewsSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse, headers=self.headers)
 
     def parse(self, response):
+        self.logger.info(f"Starting collection on {response.url}")
         return self.art_parse(response, dt=None, date_check=self.date_check)
 
     # removes by from bylines
@@ -49,16 +62,17 @@ class NewsSpider(scrapy.Spider):
         author = author.split("By ")[-1]
         return author.strip()
 
-    # takes date string and format and handles exceptions,
-    # returns "None" if cannot convert datetime
     def strptime(self, d, format1="", **kwargs):
+        """ Takes date string and format and handles exceptions.
+        returns "None" if cannot convert datetime"""
+
         if not d:
             return None
         dt = None
         try:
             dt = datetime.strptime(d, format1)
         except Exception as ex:
-            self.logger.error(("formated try 1 failed :", ex))
+            self.logger.debug(("formated try 1 failed :", ex))
             try:
                 dt = parser.parse(d, **kwargs)
             except Exception as ex:
@@ -66,13 +80,20 @@ class NewsSpider(scrapy.Spider):
         finally:
             return dt
 
-    # takes datetime, returns True if after last
-    # default returns true for sites where date cannot  be determined
     def cutoff_check(self, url, dt=None):
+        """ takes datetime, returns True if after last
+        
+        If date is before miniumum date, returns false and turns stop collection 
+        to True"""
         if not dt:
             self.logger.warning("Can't confirm %s date", url)
             return True
-        return dt >= self.cutoff
+        if dt < self.cutoff:
+            self.logger.info(f"{dt} is less than cutoff {self.cutoff}; ending collection")
+            self.stopcollection = True
+            return False
+        else:
+            return True
 
     # returns true URL already covered in recent briefing
     # important for articles without time to check
@@ -126,8 +147,8 @@ class NewsSpider(scrapy.Spider):
         if not dt:
             dt = self.get_dt(response)
         if dt and date_check:
-            self.logger.info(f"date check after being checked... {date_check}")
             if dt < self.cutoff:
+                self.logger.info(f"Date was before minimum date for url {response.url}")
                 return None
         # attempt to convert into Month, day, year format
         if isinstance(dt, date) or isinstance(dt, datetime):
@@ -142,4 +163,5 @@ class NewsSpider(scrapy.Spider):
             "body": self.get_body(response),
         }
         self.articles.append(art_dict)
+        self.logger.info(f"Ending collection on {response.url} and returning dict from artparse")
         return art_dict
