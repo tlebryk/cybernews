@@ -83,16 +83,19 @@ class ReutersArt(NewsSpider):
     def get_dt(self, response):
         dt = response.xpath("//meta[contains(@name, 'REVISION_DATE')]/@content").get()
         dt = self.strptime(dt, "")
+        if not dt:
+            # date is in first element: second element = time, third element = time updated
+            dt = extract_text(response.css("span.DateLine__date___12trWy").get())
+            dt = self.strptime(dt, "")
         return dt
 
     def get_body(self, response):
-        body =  response.css("p.Paragraph-paragraph-2Bgue")
+        body =  response.xpath("//p[contains(@data-testid, 'paragraph')]")
         return self.join_body(body)
 
     
     def parse(self, response):
         return self.art_parse(response, dt=None, date_check=self.date_check)
-
 
 
 class AlmontArt(NewsSpider):
@@ -113,7 +116,10 @@ class AlmontArt(NewsSpider):
         return super().get_title(response, splitchar=splitchar, splitchar2=splitchar2)
     
     def get_author(self, response):
-        return extract_text(response.css("div.author-title").get())
+        author = extract_text(response.css("div.author-title").get())
+        # check for trailing "    Al"
+        return author.strip(" Al")
+
     
     def get_body(self, response):
         return extract_text(response.css("div.field--name-body").get())
@@ -123,7 +129,6 @@ class AlmontArt(NewsSpider):
         tags = [extract_text(tag) for tag in tags]
         return tags
     
-
 class SPGlobalArt(NewsSpider):
     name = "SPGlobalArt"
     source = 'S&P Global Platts'

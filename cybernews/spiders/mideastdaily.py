@@ -11,7 +11,19 @@ import pandas as pd
 import re
 import json
 from .newsspider import NewsSpider
-from .mideastspider import Kurd24Art
+from .mideastspider import (
+    Kurd24Art,
+    ReutersArt,
+    AlmontArt,
+    SPGlobalArt,
+    APArt,
+    AlJazeeraArt,
+    BloombergArt,
+    RudawArt,
+    JPostArt,
+    ReliefWebArt,
+    WaPoArt,
+)
 
 # # Password file not included  in repo.
 # import sys
@@ -35,27 +47,16 @@ class Kurd24Daily(Kurd24Art):
     date_check = True
     urls_scrapped = set()
 
-    # def __init__(self, *args, **kwargs):
-    #     path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-    #     df2 = pd.read_excel(path2)
-    #     kurd24 = df2[df2.Source.str.lower().str.strip() == "kurdistan 24"]
-    #     kurd24 = kurd24[kurd24.Url.notna()]
-    #     self.start_urls = [str(url) for url in list(kurd24.Url)]
-    #     self.date_check = False
-    #     self.articles = []
-        # self.logger.info(f"before init: {self.cutoff}")
-        # super().__init__(*args, **kwargs)
-        # self.logger.info(f"after init: {self.cutoff}")
-
     def parse(self, response):
         # inspect_response(response, self)
+        self.headers["referrer"] = response.url
         divs = response.css("div.col-sm-4.Most-read-boxes")
         for div in divs:
             url = div.css("a::attr(href)")[2].get()
             if url in self.urls_scrapped:
                 self.logger.info(f"Continuing: Duplicate found duplicate url: {url}")
                 continue
-            else: 
+            else:
                 dt = extract_text(div.css("span.clock-share").get())
                 dt = self.strptime(dt)
                 if dt and self.date_check:
@@ -66,104 +67,99 @@ class Kurd24Daily(Kurd24Art):
                 # check if article past cutoff date and stop collecting.
 
 
+class ReutersDaily(ReutersArt):
+    # scrapy crawl ReutersDaily -O data/reutersdaily.csv -a cutoff="2021-06-24"
 
-# class ReutersArt(NewsSpider):
-#     # todo: get paywall arguments
+    name = "ReutersDaily"
+    source = "Reuters"
+    start_urls = [
+        "https://www.reuters.com/world/middle-east/",
+    ]
+    daily = True
+    date_check = True
+    urls_scrapped = set()
 
-#     name = "ReutersArt"
-#     source = "Reuters"
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-
-#     def get_title(self, response, splitchar="|", splitchar2=None):
-#         return super().get_title(response, splitchar=splitchar, splitchar2=splitchar2)
-
-#     def get_dt(self, response):
-#         dt = response.xpath("//meta[contains(@name, 'REVISION_DATE')]/@content").get()
-#         dt = self.strptime(dt, "")
-#         return dt
-
-#     def get_body(self, response):
-#         body = response.css("p.Paragraph-paragraph-2Bgue")
-#         return self.join_body(body)
-
-#     def __init__(self, *args, **kwargs):
-#         path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-#         df2 = pd.read_excel(path2)
-#         reuters = df2[df2.Source.str.lower().str.strip() == "reuters"]
-#         reuters = reuters[reuters.Url.notna()]
-#         kwargs["start_urls"] = [str(url) for url in list(reuters.Url)]
-#         self.articles = []
-#         super().__init__(*args, **kwargs)
-#         # self.date_check = False
-
-#     def parse(self, response):
-#         return self.art_parse(response, dt=None, date_check=self.date_check)
+    def parse(self, response):
+        # inspect_response(response, self)
+        self.headers["referrer"] = response.url
+        # head story in slightly different format:
+        leadstory = response.xpath(
+            "//a[contains(@class, 'MediaStoryCard__hero')]/@href"
+        ).get()
+        leadstory = response.urljoin(leadstory)
+        yield scrapy.Request(leadstory, callback=self.art_parse, headers=self.headers)
+        stories = response.xpath("//div[contains(@class, 'StoryCollection__story')]")
+        for story in stories:
+            # dt = extract_text(story.css("time"))
+            # dt = self.strptime(dt)
+            # if dt and self.date_check:
+            #     if not self.cutoff_check(url, dt):
+            #         break
+            url = story.css("a::attr(href)").get()
+            url = response.urljoin(url)
+            yield scrapy.Request(url, callback=self.art_parse, headers=self.headers)
 
 
-# class AlmontArt(NewsSpider):
-#     name = "AlmontArt"
-#     source = "Al-monitor"
+# TODO: requires a decent amount of parsing on homepage
 
-#     def __init__(self, *args, **kwargs):
-#         path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-#         df2 = pd.read_excel(path2)
-#         stories = df2[df2.Source.str.lower().str.strip() == "al-monitor"]
-#         stories = stories[stories.Url.notna()]
-#         kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
-#         self.articles = []
-#         super().__init__(*args, **kwargs)
+class AlmontDaily(AlmontArt):
+    # scrapy crawl AlmontDaily -O data/Almontdaily.csv -a cutoff="2021-06-24"
 
-#     def get_title(self, response, splitchar="-", splitchar2=None):
-#         return super().get_title(response, splitchar=splitchar, splitchar2=splitchar2)
+    name = "AlmontDaily"
+    source = "Almont"
+    start_urls = [
+        "https://www.al-monitor.com/",
+    ]
+    daily = True
+    date_check = True
+    urls_scrapped = set()
 
-#     def get_author(self, response):
-#         return extract_text(response.css("div.author-title").get())
+    def parse(self, response):
+        inspect_response(response, self)
+        self.headers["referrer"] = response.url
+        # head story in slightly different format:
+        articles = response.css("article")
+        for article in articles:
+            url = article.css("a::attr(href)").get()
+            if not url:
+                continue
+            url = response.urljoin(url)
+            if "/podcast/" in url or "/videos/" in url:
+                continue
+            yield scrapy.Request(url, callback=self.art_parse, headers=self.headers)
 
-#     def get_body(self, response):
-#         return extract_text(response.css("div.field--name-body").get())
+# TODO: requires javascript/ forms. leaving for now
+class SPGlobalDaily(SPGlobalArt):
+    # scrapy crawl SPGlobalDaily -O data/SPGlobaldaily.csv -a cutoff="2021-06-24"
 
-#     def get_tags(self, response):
-#         tags = response.css("div.topic").getall()
-#         tags = [extract_text(tag) for tag in tags]
-#         return tags
+    name = "SPGlobalDaily"
+    source = "SPGlobal"
+    start_urls = [
+        "https://www.reuters.com/world/middle-east/",
+    ]
+    daily = True
+    date_check = True
+    urls_scrapped = set()
 
-
-# class SPGlobalArt(NewsSpider):
-#     name = "SPGlobalArt"
-#     source = "S&P Global Platts"
-
-#     def __init__(self, *args, **kwargs):
-#         path2 = r"C:\Users\tlebr\Google Drive\fdd\dailynews\cybernews\data\old_arts\Machine Learning Tool 1 (1).xlsx"
-#         df2 = pd.read_excel(path2)
-#         stories = df2[df2.Source.str.lower().str.strip() == "s&p global platts"]
-#         stories = stories[stories.Url.notna()]
-#         kwargs["start_urls"] = [str(url) for url in list(stories.Url)]
-#         super().__init__(*args, **kwargs)
-
-#     def get_tags(self, response):
-#         tags = response.xpath("//meta[contains(@property, 'commodity')]/@content").get()
-#         tags = tags.split("|")
-#         return tags
-
-#     def get_author(self, response):
-#         return response.xpath("//a[contains(@data-gtm-action, 'Author')]/text()").get()
-
-#     def get_title(self, response, splitchar="|", splitchar2=None):
-#         return super().get_title(response, splitchar=splitchar, splitchar2=splitchar2)
-
-#     def get_dt(self, response):
-#         dt = extract_text(response.css("li.meta-data__date").get())
-#         # remove trailing timezone
-#         dt = " ".join(dt.split(" ")[:-1])
-#         dt = self.strptime(dt, "%d %b %Y | %H:%M")
-#         return dt
-
-#     def get_body(self, response):
-#         body = response.css("div.article__content")
-#         body = self.join_body(body)
-#         return body
+    def parse(self, response):
+        inspect_response(response, self)
+        self.headers["referrer"] = response.url
+        # head story in slightly different format:
+        leadstory = response.xpath(
+            "//a[contains(@class, 'MediaStoryCard__hero')]/@href"
+        ).get()
+        leadstory = response.urljoin(leadstory)
+        yield scrapy.Request(leadstory, callback=self.art_parse, headers=self.headers)
+        stories = response.xpath("//div[contains(@class, 'StoryCollection__story')]")
+        for story in stories:
+            # dt = extract_text(story.css("time"))
+            # dt = self.strptime(dt)
+            # if dt and self.date_check:
+            #     if not self.cutoff_check(url, dt):
+            #         break
+            url = story.css("a::attr(href)").get()
+            url = response.urljoin(url)
+            yield scrapy.Request(url, callback=self.art_parse, headers=self.headers)
 
 
 # class APArt(NewsSpider):
