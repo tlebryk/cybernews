@@ -22,7 +22,7 @@ In progress (bugs):
 import scrapy
 from datetime import date, datetime, timedelta
 from html_text import extract_text
-import html2text
+# import html2text
 from urllib.parse import urljoin
 from dateutil import parser
 import re
@@ -36,8 +36,8 @@ sys.path.append("C:\\Users\\tlebr\\Google Drive\\fdd\\dailynews\\cybernews\\cybe
 # import pws
 
 
-converter = html2text.HTML2Text()
-converter.ignore_links = True
+# converter = html2text.HTML2Text()
+# converter.ignore_links = True
 
 settings = get_project_settings()
 articles = []

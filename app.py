@@ -20,9 +20,9 @@ crawl_runner = CrawlerRunner(settings=get_project_settings())
 scrape_in_progress = False
 scrape_complete = False
 
-# filler; make environment variable later
+# TODO; make environment variable later
 # currently not used because app is open with no private user data
-app.config["SECRET_KEY"] = "6f1f6f1c724600453622f48c48555e73"
+# app.config["SECRET_KEY"] = "6f1f6f1c724600453622f48c48555e73"
 td = date.today()
 
 # global for now which allows us to keep track of urls that

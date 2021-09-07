@@ -17,7 +17,7 @@ today = t.strftime("%B_%d_%Y")
 current_time = timedelta(hours=t.hour, minutes=t.minute + 1)
 path = f"jsons/{today}"
 if not os.path.isdir(path):
-    os.mkdir(path)
+    os.makedirs(path)
 settings = get_project_settings()
 process = CrawlerRunner(settings)
 
