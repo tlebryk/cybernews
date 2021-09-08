@@ -13,6 +13,7 @@ from twisted.logger import globalLogBeginner, textFileLogObserver
 from twisted.web import server, wsgi
 from twisted.internet import endpoints, reactor
 from zotero import get_meta
+import os
 # import rank
 
 app = Flask(__name__)
@@ -22,6 +23,7 @@ scrape_complete = False
 
 # TODO; make environment variable later
 # currently not used because app is open with no private user data
+app.config["SECRET_KEY"] = os.environ.get("FLASKKEY", "146abd9")
 # app.config["SECRET_KEY"] = "6f1f6f1c724600453622f48c48555e73"
 td = date.today()
 
