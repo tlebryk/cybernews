@@ -4,16 +4,16 @@ import exportword
 from datetime import date
 from cybernews.spiders import articlesspider as AS
 import dailyrunner as DR
-from cybernews.spiders import art_spider2 as AS2
+# from cybernews.spiders import art_spider2 as AS2
 from scrapy.utils.project import get_project_settings
-import json
+# import json
 from scrapy.crawler import CrawlerRunner
 from sys import stdout
 from twisted.logger import globalLogBeginner, textFileLogObserver
 from twisted.web import server, wsgi
 from twisted.internet import endpoints, reactor
 from zotero import get_meta
-import rank
+# import rank
 
 app = Flask(__name__)
 crawl_runner = CrawlerRunner(settings=get_project_settings())
@@ -190,26 +190,26 @@ def crawl2(url_ls):
 
 
 
-@app.route("/dailyscrape")
-def getdaily():
-    try:
-        df = DR.get_todays_js()
-    except ValueError:
-        flash(f"No articles found", "warning")
-        return redirect(url_for("home"))
-    df = rank.sort(df)
-    # df.date = df.date.dt.strftime("%B %d, %Y")
-    arts = df.to_json(orient="records")
-    df.date = str(df.date)
-    a = json.loads(arts)
-    # arts = DR.main(process=crawl_runner)
-    a = a[::-1]
-    for el in a:
-        for key, value in el.items():
-            el[key] = str(value)
-    # [print(type(x), x) for x in a[1].values()]
-    articles.extend(a[:7])
-    return redirect(url_for("home"))
+# @app.route("/dailyscrape")
+# def getdaily():
+#     try:
+#         df = DR.get_todays_js()
+#     except ValueError:
+#         flash(f"No articles found", "warning")
+#         return redirect(url_for("home"))
+#     df = rank.sort(df)
+#     # df.date = df.date.dt.strftime("%B %d, %Y")
+#     arts = df.to_json(orient="records")
+#     df.date = str(df.date)
+#     a = json.loads(arts)
+#     # arts = DR.main(process=crawl_runner)
+#     a = a[::-1]
+#     for el in a:
+#         for key, value in el.items():
+#             el[key] = str(value)
+#     # [print(type(x), x) for x in a[1].values()]
+#     articles.extend(a[:7])
+#     return redirect(url_for("home"))
 
 
 # For testing purposes:
