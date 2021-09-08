@@ -1,5 +1,6 @@
 from flask import Flask, render_template, url_for, flash, redirect, request, send_file
 from forms import ArticleForm, AutoPopForm
+import logging
 import exportword
 from datetime import date
 from cybernews.spiders import articlesspider as AS
@@ -16,7 +17,13 @@ from zotero import get_meta
 import os
 # import rank
 
+# deal with Pythonanywhere working directory settings... 
+if os.name == "posix":
+    os.chdir("/home/tlebryk1/cybernews")
+
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
+
 crawl_runner = CrawlerRunner(settings=get_project_settings())
 scrape_in_progress = False
 scrape_complete = False
@@ -50,6 +57,7 @@ def add_article():
         articles.append(req)
     if f.validate_on_submit():
         flash(f"Added {f.title.data}", "success")
+        logging.info(f"added article: {f}")
         return redirect(url_for("home"))
     return render_template("article_form.html", form=f, legend="Create Post")
 
