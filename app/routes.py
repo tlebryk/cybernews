@@ -1,47 +1,8 @@
 from flask import Flask, render_template, url_for, flash, redirect, request, send_file
-from forms import ArticleForm, AutoPopForm
+from app.forms import ArticleForm, AutoPopForm
+from app.models import Article
+from app import app, articles, url_ls
 import logging
-import exportword
-from datetime import date
-from cybernews.spiders import articlesspider as AS
-import dailyrunner as DR
-# from cybernews.spiders import art_spider2 as AS2
-from scrapy.utils.project import get_project_settings
-# import json
-from scrapy.crawler import CrawlerRunner
-from sys import stdout
-from twisted.logger import globalLogBeginner, textFileLogObserver
-from twisted.web import server, wsgi
-from twisted.internet import endpoints, reactor
-from zotero import get_meta
-import os
-# import rank
-
-# deal with Pythonanywhere working directory settings... 
-if os.name == "posix":
-    os.chdir("/home/tlebryk1/cybernews")
-
-app = Flask(__name__)
-logging.basicConfig(level=logging.INFO)
-
-crawl_runner = CrawlerRunner(settings=get_project_settings())
-scrape_in_progress = False
-scrape_complete = False
-
-# TODO; make environment variable later
-# currently not used because app is open with no private user data
-app.config["SECRET_KEY"] = os.environ.get("FLASKKEY", "146abd9")
-# app.config["SECRET_KEY"] = "6f1f6f1c724600453622f48c48555e73"
-td = date.today()
-
-# global for now which allows us to keep track of urls that
-# our scrapper can't autopopulate
-url_ls = []
-
-# see sample_arts.txt  to prepopulate articles for testing purposes
-articles = []
-
-
 @app.route("/")
 @app.route("/home", methods=["GET", "POST"])
 def home():
@@ -235,11 +196,12 @@ def get_results():
 # downloads articles as word document in proper formatting
 @app.route("/export", methods=["POST"])
 def background_export():
+
     if request.method == "POST":
         exportword.cyber_export(
-            f"docs/Cyber_Briefing_{td.strftime('%B_%d_%Y')}.docx", articles
+            f"docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx", articles
         )
-        path = f"docs/Cyber_Briefing_{td.strftime('%B_%d_%Y')}.docx"
+        path = f"docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx"
         return send_file(path, as_attachment=True)
     return render_template("home.html", articles=articles)
 
@@ -296,21 +258,3 @@ class ArticleLs:
 
     def delete(self, ranking):
         self.ls.pop(ranking)
-
-
-if __name__ == "__main__":
-    # DR.full()
-    # start the logger
-    globalLogBeginner.beginLoggingTo([textFileLogObserver(stdout)])
-
-    # start the WSGI server
-    root_resource = wsgi.WSGIResource(reactor, reactor.getThreadPool(), app)
-    factory = server.Site(root_resource)
-    http_server = endpoints.TCP4ServerEndpoint(reactor, 5000)
-    http_server.listen(factory)
-
-    # start event loop
-    reactor.run()
-
-    # run docker: 
-    # docker run -d -p 1969:1969 --rm --name translation-server zotero/translation-server

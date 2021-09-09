@@ -41,8 +41,12 @@ class JsonWritePipeline:
         return item
 
 class DeDupePipeline:
+    """Checks if url has already been seen and drops duplicate item if so"""
 
     def __init__(self) -> None:
+        # eventually this could inherit 
+        # does this make sense in a pipeline or preemptively never scraping that url? 
+        # probably a url set should live in the the spider... 
         self.urls = set()
 
     def process_item(self, item, spider):
