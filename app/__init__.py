@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.INFO)
 
 app.config["SECRET_KEY"] = os.environ.get("FLASKKEY", "146abd9")
 # make more secure later
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://tlebryk1:d6aL*eXK6xjrYQueb@tlebryk1.mysql.pythonanywhere-services.com/tlebryk1$default"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://tlebryk1:d6aL*eXK6xjrYQueb@tlebryk1.mysql.pythonanywhere-services.com/tlebryk1"
 
 db = SQLAlchemy(app)
 # db.create_all()
