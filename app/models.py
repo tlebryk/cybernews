@@ -5,17 +5,17 @@ from app import db, TODAY
 
 # Todo: add users
 
-class Article(db.Model):
+class Articles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200))
     body = db.Column(db.Text)
-    authors = db.Column(db.String)
+    authors = db.Column(db.String(200))
     source = db.Column(db.String(100))
     url = db.Column(db.String(200))
     # date is not super important so no need to worry about utc for now
     artdate = db.Column(db.Date, default=TODAY)
-    briefingdate = db.Column(db.Date, nullable=False, default=TODAY) 
-    ranking = db.Column(db.Integer, nullable=False)
+    briefingdate = db.Column(db.Date, nullable=False, default=TODAY)
+    ranking = db.Column(db.Integer, nullable=False, default=1)
 
     def __repr__(self):
         return f"{self.title}, {self.source}, {self.id}"

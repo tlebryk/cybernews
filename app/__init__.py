@@ -12,7 +12,7 @@ TODAY = date.today()
 if os.name != "sdff":
     print(1)
 
-# deal with Pythonanywhere working directory settings... 
+# deal with Pythonanywhere working directory settings...
 if os.name == "posix":
     os.chdir("/home/tlebryk1/cybernews")
 
@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.INFO)
 
 app.config["SECRET_KEY"] = os.environ.get("FLASKKEY", "146abd9")
 # make more secure later
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://tlebryk1:d6aL*eXK6xjrYQueb@tlebryk1.mysql.pythonanywhere-services.com/tlebryk1"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://tlebryk1:flasktake@tlebryk1.mysql.pythonanywhere-services.com/tlebryk1$default"
 
 db = SQLAlchemy(app)
 # db.create_all()
@@ -33,7 +33,7 @@ db = SQLAlchemy(app)
 
 # import rank
 
-# deal with Pythonanywhere working directory settings... 
+# deal with Pythonanywhere working directory settings...
 if os.name == "posix":
     os.chdir("/home/tlebryk1/cybernews")
 

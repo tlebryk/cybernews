@@ -1,13 +1,13 @@
 from flask import Flask, render_template, url_for, flash, redirect, request, send_file
 from app import db
 from app.forms import ArticleForm, AutoPopForm
-from app.models import Article
+from app.models import Articles
 from app import app, articles, url_ls
 import logging
 @app.route("/")
 @app.route("/home", methods=["GET", "POST"])
 def home():
-    articles = Article.query.all()
+    articles = Articles.query.all()
     return render_template("home.html", articles=articles)
 
 
@@ -19,13 +19,14 @@ def add_article():
         req["body"] = req["body"].replace("\r", "")
         articles.append(req)
     if f.validate_on_submit():
-        article = Article(
+        article = Articles(
             url = f.url.data,
             title = f.title.data,
             authors = f.author.data,
             body = f.body.data,
             source = f.source.data,
-            artdate = f.date.date,            
+            artdate = f.date.data,
+            # ranking = 1
         )
         db.session.add(article)
         db.session.commit()
@@ -54,7 +55,7 @@ def url_form():
     if f.validate_on_submit():
         start, _ = result
         flash(f"Added urls", "success")
-        return redirect(url_for("update_post", 
+        return redirect(url_for("update_post",
             article_title=articles[start]['title']))
     return render_template("url_form.html", form=f, legend="Create Post")
 
@@ -104,7 +105,7 @@ def update_post(article_title):
                 # flash(f"Updated {f.title.data} TESTING", "success")
                 return redirect(url_for("add_article"))
             else:
-                return redirect(url_for("update_post", 
+                return redirect(url_for("update_post",
                     article_title=articles[i+1]['title']))
     return render_template("article_form.html", form=f, legend="Create Post")
 
@@ -167,7 +168,7 @@ def crawl2(url_ls):
         return False
     for url in url_ls:
         articles.append(get_meta(url))
-    return start, len(url_ls) 
+    return start, len(url_ls)
 
 
 
