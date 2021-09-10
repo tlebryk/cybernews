@@ -1,4 +1,5 @@
 from flask import Flask, render_template, url_for, flash, redirect, request, send_file
+from app import db
 from app.forms import ArticleForm, AutoPopForm
 from app.models import Article
 from app import app, articles, url_ls
@@ -6,6 +7,7 @@ import logging
 @app.route("/")
 @app.route("/home", methods=["GET", "POST"])
 def home():
+    articles = Article.query.all()
     return render_template("home.html", articles=articles)
 
 
@@ -17,6 +19,16 @@ def add_article():
         req["body"] = req["body"].replace("\r", "")
         articles.append(req)
     if f.validate_on_submit():
+        article = Article(
+            url = f.url.data,
+            title = f.title.data,
+            authors = f.author.data,
+            body = f.body.data,
+            source = f.source.data,
+            artdate = f.date.date,            
+        )
+        db.session.add(article)
+        db.session.commit()
         flash(f"Added {f.title.data}", "success")
         logging.info(f"added article: {f}")
         return redirect(url_for("home"))
