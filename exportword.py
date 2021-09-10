@@ -1,4 +1,7 @@
-"""Script to export daily briefing into a word document"""
+""" Script to export daily briefing into a word document
+
+    When running as a script, the first argument should be path to saved dictionaries.
+    Second argument should be path to export to. """
 
 from docx import Document
 import json
@@ -9,9 +12,15 @@ from wordformat import add_hyperlink, add_bookmark, book_link
 from dateutil import parser
 import sys
 
-# briefing should be either "CEFP News Briefing"
-# or "Daily Cyber News Briefing"
 def exporter(briefing, export_path, obj):
+    """Transforms articles into word doc and saves locally. 
+
+    briefing: should be either "CEFP News Briefing" or "Daily Cyber News Briefing
+    export_path: full file name e.g. "data/September_8_2011.docx"
+    obj: list of dictionaries where order is rank on document. Dictionaries
+        should include author, source, date, url, and  body of article. """
+
+
     doc = Document()
     styles = doc.styles
     new_heading_style = styles.add_style('New Heading', WD_STYLE_TYPE.PARAGRAPH)
@@ -78,17 +87,19 @@ def exporter(briefing, export_path, obj):
 
 
 def CEFP_export(export_path, obj):
-    exporter("CEFP News Briefing", export_path,obj) 
+    exporter("CEFP News Briefing", export_path, obj) 
 
 def cyber_export(export_path, obj):
     exporter("Daily Cyber News Briefing", export_path, obj)
 
 
 if __name__ == '__main__':
+    # TODO: switch to argparse
+    # path to file with list of dictionaries
     path = sys.argv[1]
     with open(path, 'r', encoding='utf-8') as f:
-        data=f.read()
+        obj=f.read()
     export_path = sys.argv[2]
-    cyber_export(export_path, data)
+    cyber_export(export_path, obj)
 
 
