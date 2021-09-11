@@ -2,8 +2,9 @@
 import docx
 from docx.enum.dml import MSO_THEME_COLOR_INDEX
 
-# Links to an external hyperlink
+
 def add_hyperlink(paragraph, text, url):
+    """ Links to an external hyperlink"""
     # Gets access to the document.xml.rels file and add new relation id value
     part = paragraph.part
     r_id = part.relate_to(
@@ -30,6 +31,14 @@ def add_hyperlink(paragraph, text, url):
 
 
 def add_bookmark(paragraph, bookmark_text, bookmark_name):
+    """ Add a word bookmark and text to a paragraph.
+        
+        Bookmarks in word can be used for internal hyperlinks.  
+        :type paragraph: docx.text.paragraph 
+        :param bookmark_text: str to add to paragraph
+        :param bookmark_name: string by which to refer to bookmark (for future links)
+        Returns the paragraph new run with the bookmark."""
+
     run = paragraph.add_run()
     tag = run._r
     start = docx.oxml.shared.OxmlElement("w:bookmarkStart")
@@ -46,9 +55,11 @@ def add_bookmark(paragraph, bookmark_text, bookmark_name):
     return run
 
 
-# Adds text to paragraph with link to an internal bookmark
-# Returns run with link in it
 def book_link(paragraph, bookmark_name, text, tool_tip=None):
+    """ Adds text to paragraph with link to an internal bookmark
+    
+    Returns run with link in it
+    """
     hyperlink = docx.oxml.shared.OxmlElement("w:hyperlink")
     hyperlink.set(docx.oxml.shared.qn("w:anchor"), bookmark_name)
     if tool_tip:

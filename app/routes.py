@@ -1,5 +1,5 @@
 from flask import Flask, render_template, url_for, flash, redirect, request, send_file
-from app import db
+from app import db, TODAY
 from app.forms import ArticleForm, AutoPopForm
 from app.models import Articles
 from app import app, articles, url_ls
@@ -7,7 +7,7 @@ import logging
 @app.route("/")
 @app.route("/home", methods=["GET", "POST"])
 def home():
-    articles = Articles.query.all()
+    articles = Articles.query.filter_by(briefingdate=TODAY).all()
     return render_template("home.html", articles=articles)
 
 
@@ -135,7 +135,8 @@ def move_down(article_title):
 
 
 @app.route("/article/<article_title>")
-def post(article_title):
+def post(article_title, art_id=None):
+    a = Articles.query.get_or_404(art_id)
     a = find_art(article_title)
     if not a:
         flash("Article not found", "warning")
@@ -144,31 +145,31 @@ def post(article_title):
     return render_template("post.html", title=a["title"], art=a)
 
 
-@app.route("/crawl")
-def crawl(url_clump):
-    global scrape_in_progress
-    global scrape_complete
+# @app.route("/crawl")
+# def crawl(url_clump):
+#     global scrape_in_progress
+#     global scrape_complete
 
-    if not scrape_in_progress:
-        scrape_in_progress = True
-        global articles
-        # start the crawler and execute a callback when complete
-        for clump in url_clump.values():
-            r = crawl_runner.crawl(
-                clump.Spider,
-                **dict(start_urls=clump._url_ls, date_check=False, articles=articles),
-            )
-        r.addCallback(finished_scrape)
+#     if not scrape_in_progress:
+#         scrape_in_progress = True
+#         global articles
+#         # start the crawler and execute a callback when complete
+#         for clump in url_clump.values():
+#             r = crawl_runner.crawl(
+#                 clump.Spider,
+#                 **dict(start_urls=clump._url_ls, date_check=False, articles=articles),
+#             )
+#         r.addCallback(finished_scrape)
 
-@app.route("/crawl2", methods=['POST'])
-def crawl2(url_ls):
-    global articles
-    start = len(articles)
-    if not url_ls:
-        return False
-    for url in url_ls:
-        articles.append(get_meta(url))
-    return start, len(url_ls)
+# @app.route("/crawl2", methods=['POST'])
+# def crawl2(url_ls):
+#     global articles
+#     start = len(articles)
+#     if not url_ls:
+#         return False
+#     for url in url_ls:
+#         articles.append(get_meta(url))
+#     return start, len(url_ls)
 
 
 

@@ -31,8 +31,6 @@ db = SQLAlchemy(app)
 # db.create_all()
 
 
-# import rank
-
 # deal with Pythonanywhere working directory settings...
 if os.name == "posix":
     os.chdir("/home/tlebryk1/cybernews")
