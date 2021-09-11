@@ -134,8 +134,8 @@ def move_down(article_title):
     return redirect(url_for("home"))
 
 
-@app.route("/article/<article_title>")
-def post(article_title, art_id=None):
+@app.route("/article/<int:art_id>")
+def post(art_id=None):
     a = Articles.query.get_or_404(art_id)
     # a = find_art(article_title)
     # if not a:

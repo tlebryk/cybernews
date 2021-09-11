@@ -3,8 +3,8 @@
   <article class="media content-section">
     <div class="media-body">
       <div class="article-metadata">
-        <p class="mr-2">{{ art.author}}</a>
-        <small class="text-muted">{{ art.date }}</small>
+        <p class="mr-2">{{ art.authors}}</a>
+        <small class="text-muted">{{ art.artdate }}</small>
           <div>
             <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_post', article_title=art.title) }}">Update</a>
             <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
