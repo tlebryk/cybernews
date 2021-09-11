@@ -60,13 +60,19 @@ def url_form():
     return render_template("url_form.html", form=f, legend="Create Post")
 
 
-@app.route("/post/<article_title>/delete_post", methods=["POST"])
-def delete_post(article_title):
-    a = find_art(article_title)
+@app.route("/post/<int:art_id>/delete_post", methods=["POST"])
+def delete_post(art_id):
+    a = Articles.query.get_or_404(art_id)
     if not a:
         flash(f"Article not found")
-    i, _ = a
-    articles.pop(i)
+    db.session.delete(a)
+    db.session.commit()
+    flash(f"{a.title} has been deleted", "success")
+
+    # a = find_art(article_title)
+
+    # i, _ = a
+    # articles.pop(i)
     return redirect(url_for("home"))
 
 @app.route("/delete_all", methods=["POST"])
@@ -76,38 +82,46 @@ def delete_all():
     return redirect(url_for("home"))
 
 
-@app.route("/post/<article_title>/update", methods=["POST", "GET"])
-def update_post(article_title):
-    a = find_art(article_title)
+@app.route("/post/<int:art_id>/update", methods=["POST", "GET"])
+def update_post(art_id):
+    a = Articles.query.get_or_404(art_id)
+    # a = find_art(article_title)
     if not a:
         flash(f"Article not found")
         return redirect(url_for("home"))
-    i, a = a
+    # i, a = a
     f = ArticleForm()
     if request.method == "GET":
-        f.title.data = a.get("title")
-        f.body.data = a.get("body")
-        f.url.data = a.get("url")
-        f.source.data = a.get("source")
-        f.author.data = a.get("author")
-        f.date.data = a.get("date")
-    if request.method == "POST":
-        req = request.form.copy()
-        req["body"] = req["body"].replace("\r", "")
-        articles.pop(i)
-        articles.insert(i, req)
+        f.title.data = a.title
+        f.body.data = a.body
+        f.url.data = a.url
+        f.source.data = a.source
+        f.author.data = a.authors
+        f.date.data = a.artdate
+    # if request.method == "POST":
+    #     req = request.form.copy()
+    #     req["body"] = req["body"].replace("\r", "")
+    #     articles.pop(i)
+    #     articles.insert(i, req)
     if f.validate_on_submit():
+        a.title = f.title.data
+        a.body = f.body.data
+        a.url = f.url.data
+        a.source = f.source.data
+        a.authors = f.author.data
+        a.artdate = f.date.data
+        db.session.commit()
         flash(f"Updated {f.title.data}", "success")
         if f.homesub.data:
             return redirect(url_for("home"))
-        if f.nextsub.data:
-            if len(articles) <= i+1:
+        # if f.nextsub.data:
+            # if len(articles) <= i+1:
                 # flash(f"Updated {f.title.data} TESTING", "success")
-                return redirect(url_for("add_article"))
-            else:
-                return redirect(url_for("update_post",
-                    article_title=articles[i+1]['title']))
-    return render_template("article_form.html", form=f, legend="Create Post")
+                # return redirect(url_for("add_article"))
+            # else:
+                # return redirect(url_for("update_post",
+                    # article_title=articles[i+1]['title']))
+    return render_template("article_form.html", form=f, legend="Update Post")
 
 
 @app.route("/post/<article_title>/moveup", methods=["POST"])
