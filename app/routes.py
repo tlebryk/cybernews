@@ -32,7 +32,17 @@ def add_article():
         db.session.commit()
         flash(f"Added {f.title.data}", "success")
         logging.info(f"added article: {f}")
+
+    if f.homesub.data:
         return redirect(url_for("home"))
+    elif f.nextsub.data:
+            # if len(articles) <= i+1:
+                # flash(f"Updated {f.title.data} TESTING", "success")
+        return redirect(url_for("add_article"))
+            # else:
+                # return redirect(url_for("update_post",
+                    # article_title=articles[i+1]['title']))
+        # return redirect(url_for("home"))
     return render_template("article_form.html", form=f, legend="Create Post")
 
 
