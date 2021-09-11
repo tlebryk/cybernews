@@ -77,8 +77,13 @@ def delete_post(art_id):
 
 @app.route("/delete_all", methods=["POST"])
 def delete_all():
-    global articles
-    articles = []
+    articles = Articles.query.filter_by(briefingdate=TODAY)
+    articles.delete()
+    # db.session.delete(articles)
+    db.session.commit()
+    # as = Article.query.get
+    # global articles
+    # articles = []
     return redirect(url_for("home"))
 
 
