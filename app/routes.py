@@ -137,11 +137,11 @@ def move_down(article_title):
 @app.route("/article/<article_title>")
 def post(article_title, art_id=None):
     a = Articles.query.get_or_404(art_id)
-    a = find_art(article_title)
-    if not a:
-        flash("Article not found", "warning")
-        return redirect(url_for("home"))
-    _, a = a
+    # a = find_art(article_title)
+    # if not a:
+    #     flash("Article not found", "warning")
+    #     return redirect(url_for("home"))
+    # _, a = a
     return render_template("post.html", title=a["title"], art=a)
 
 

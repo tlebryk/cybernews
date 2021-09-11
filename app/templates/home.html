@@ -11,7 +11,7 @@
             </span>
 
         </div>
-        <h2><a href="{{ url_for('post', article_title=art.title) }}">{{ art.title }} </a> </h2>
+        <h2><a href="{{ url_for('post', article_title=art.title, art_id=art.id) }}">{{ art.title }} </a> </h2>
         <p class="article-content">{{ art.body[:50] + "..."}}</p>
         <p class="article-content"> <a href={{ art.url }}>{{ art.url }}</a></p>
         <div class="art-foot space-between">
