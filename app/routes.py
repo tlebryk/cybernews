@@ -142,7 +142,7 @@ def post(art_id=None):
     #     flash("Article not found", "warning")
     #     return redirect(url_for("home"))
     # _, a = a
-    return render_template("post.html", title=a["title"], art=a)
+    return render_template("post.html", title=a.title, art=a)
 
 
 # @app.route("/crawl")
