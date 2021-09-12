@@ -16,12 +16,15 @@ class Articles(db.Model):
     artdate = db.Column(db.Date, default=TODAY)
     briefingdate = db.Column(db.Date, nullable=False, default=TODAY)
     ranking = db.Column(db.Integer, nullable=False, default=1)
+    # linked list pointing to next article?
+    nextart = db.Column(db.Integer)
+    prevart = db.Column(db.Integer)
 
     def __repr__(self):
         return f"{self.title}, {self.source}, {self.id}"
 
 # UPDATEING DATABASE
-# db.create_all()
+db.create_all()
 # db.session.add(Article)
 # db.session.commit()
 

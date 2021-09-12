@@ -4,6 +4,7 @@ from app.forms import ArticleForm, AutoPopForm
 from app.models import Articles
 from app import app, articles, url_ls
 import logging
+from sqlalchemy import desc, text
 @app.route("/")
 @app.route("/home", methods=["GET", "POST"])
 def home():
@@ -14,11 +15,40 @@ def home():
 @app.route("/article_form", methods=["POST", "GET"])
 def add_article():
     f = ArticleForm()
-    if request.method == "POST":
-        req = request.form.copy()
-        req["body"] = req["body"].replace("\r", "")
-        articles.append(req)
+    # if request.method == "POST":
+    #     req = request.form.copy()
+    #     req["body"] = req["body"].replace("\r", "")
+    #     articles.append(req)
     if f.validate_on_submit():
+        arts = Articles.query.filter_by(briefingdate=TODAY)
+        # regardless of which element is returned first,
+        # backwards traversal will always land on the final element
+        # final = arts.order_by(desc(text('articles.ranking'))).first()
+        final = arts.first()
+        if not final:
+            class filler():
+                id=0
+                prevart=None
+            final = filler()
+            logging.info("No articles found during add_article. Initializing today's linked list")
+        else:
+            counter = 0
+            while final.prevart and counter < 1000:
+                final = Articles.query.get(final.prevart)
+                counter+=1
+            logging.info(f"""finalprevart:{final.prevart};
+                finalnextart:{final.nextart};
+                finalid: {final.id};
+                finaltitle: {final.title};""")
+
+        # final.prevart =
+        # for article in articles:
+        #     article.prev
+        # gimmicky ranking system
+        # with 20 element operation max
+        ranking = 20 * (arts.count() + 1)
+        # traverse list until last element fond
+        # Articles.query.filter_by(briefingdate=TODAY).last()
         article = Articles(
             url = f.url.data,
             title = f.title.data,
@@ -26,11 +56,19 @@ def add_article():
             body = f.body.data,
             source = f.source.data,
             artdate = f.date.data,
-            # ranking = 1
+            prevart = 0,
+            nextart = final.id,
+            ranking = ranking,
         )
         db.session.add(article)
+        db.session.flush()
+        db.session.refresh(article)
+        logging.info(f"prev art before: {final.prevart}")
+        final.prevart = article.id
+        logging.info(f"prev art after: {final.prevart}")
         db.session.commit()
-        flash(f"Added {f.title.data}", "success")
+        flash(f"Added {f.title.data}; finalprevart:{final.prevart}; finalid: {final.id}; newntext{article.nextart}; newid: {article.id}; lastid: {article.prevart}", "success")
+
         logging.info(f"added article: {f}")
 
     if f.homesub.data:

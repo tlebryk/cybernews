@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import logging
 # import exportword
 from datetime import date
+from flask_migrate import Migrate
 import os
 
 TODAY = date.today()
@@ -28,6 +29,7 @@ app.config["SECRET_KEY"] = os.environ.get("FLASKKEY", "146abd9")
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://tlebryk1:flasktake@tlebryk1.mysql.pythonanywhere-services.com/tlebryk1$default"
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 # db.create_all()
 
 
