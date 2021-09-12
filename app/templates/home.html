@@ -16,10 +16,10 @@
         <p class="article-content"> <a href={{ art.url }}>{{ art.url }}</a></p>
         <div class="art-foot space-between">
             <div class="arrows">
-                <form action="{{ url_for('move_up', article_title=art.title) }}" method="POST">
+                <form action="{{ url_for('move_up', art_id=art.id) }}" method="POST">
                     {% include 'up-arrow.html' %}
                 </form>
-                <form action="{{ url_for('move_down', article_title=art.title) }}" method="POST" class="arrows">
+                <form action="{{ url_for('move_down', art_id=art.id) }}" method="POST" class="arrows">
                     {% include 'down-arrow.html' %}
                 </form>
             </div>

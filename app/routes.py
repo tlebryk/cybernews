@@ -9,7 +9,31 @@ from sqlalchemy import desc, text
 @app.route("/home", methods=["GET", "POST"])
 def home():
     articles = Articles.query.filter_by(briefingdate=TODAY).all()
-    return render_template("home.html", articles=articles)
+    # get first element
+    elementdict = {}
+    head = 0
+    for i, a in enumerate(articles):
+        elementdict[a.id] = i
+        if a.nextart == 0:
+            head = a
+        if a.prevart == 0:
+            tail = a
+    logging.info(f"tail: {tail}")
+    logging.info(f"head: {head}")
+    logging.info([(k,v) for k,v in elementdict.items()])
+    newlist = []
+    while head:
+        newlist.append(head)
+        ind = elementdict.get(head.prevart)
+        if not ind:
+            break
+        head = articles[ind]
+
+        # newlist.append(articles[elementdict[head.prevart]]
+
+
+
+    return render_template("home.html", articles=newlist)
 
 
 @app.route("/article_form", methods=["POST", "GET"])
@@ -46,7 +70,7 @@ def add_article():
         #     article.prev
         # gimmicky ranking system
         # with 20 element operation max
-        ranking = 20 * (arts.count() + 1)
+        # ranking = 20 * (arts.count() + 1)
         # traverse list until last element fond
         # Articles.query.filter_by(briefingdate=TODAY).last()
         article = Articles(
@@ -58,7 +82,7 @@ def add_article():
             artdate = f.date.data,
             prevart = 0,
             nextart = final.id,
-            ranking = ranking,
+            # ranking = ranking,
         )
         db.session.add(article)
         db.session.flush()
@@ -113,6 +137,16 @@ def delete_post(art_id):
     a = Articles.query.get_or_404(art_id)
     if not a:
         flash(f"Article not found")
+    else:
+        prev = Articles.query.get(a.prevart)
+        nxt = Articles.query.get(a.nextart)
+        if prev and nxt:
+            prev.nextart = nxt.id
+            nxt.prevart = prev.id
+        elif prev:
+            prev.nextart = 0
+        elif nxt:
+            nxt.prevart = 0
     db.session.delete(a)
     db.session.commit()
     flash(f"{a.title} has been deleted", "success")
@@ -177,27 +211,56 @@ def update_post(art_id):
     return render_template("article_form.html", form=f, legend="Update Post")
 
 
-@app.route("/post/<article_title>/moveup", methods=["POST"])
-def move_up(article_title):
-    a = find_art(article_title)
+@app.route("/post/<int:art_id>/moveup", methods=["POST"])
+def move_up(art_id):
+    a = Articles.query.get(art_id)
+    # a = find_art(article_title)
     if not a:
         flash(f"Article not found")
         return redirect(url_for("home"))
-    i, a = a
-    if i > 0:
-        articles.insert(i - 1, articles.pop(i))
+    prev = Articles.query.get(a.prevart)
+    nxt = Articles.query.get(a.nextart)
+    if prev and nxt:
+        nxt.prevart = prev.id
+        prev.nextart = nxt.id
+        a.nextart = nxt.nextart
+        a.prevart = nxt.id
+        nxt.nextart = a.id
+    elif nxt:
+        nxt.prevart = 0
+        a.nextart = nxt.nextart
+        nxt.nextart = a.id
+    db.session.commit()
+    # i, a = a
+    # if i > 0:
+    #     articles.insert(i - 1, articles.pop(i))
     return redirect(url_for("home"))
 
 
-@app.route("/post/<article_title>/movedown", methods=["POST"])
-def move_down(article_title):
-    a = find_art(article_title)
+@app.route("/post/<int:art_id>/movedown", methods=["POST"])
+def move_down(art_id):
+    a = Articles.query.get(art_id)
+    # a = find_art(article_title)
     if not a:
         flash(f"Article not found")
         return redirect(url_for("home"))
-    i, a = a
-    if i < len(articles):
-        articles.insert(i + 1, articles.pop(i))
+    prev = Articles.query.get(a.prevart)
+    nxt = Articles.query.get(a.nextart)
+    if prev and nxt:
+        nxt.prevart = prev.id
+        prev.nextart = nxt.id
+        a.nextart = prev.id
+        a.prevart = prev.prevart
+        prev.prevart = a.id
+    elif prev:
+        prev.nextart = 0
+        a.prevart = prev.prevart
+        prev.prevart = a.id
+    db.session.commit()
+    # a = find_art(article_title)
+    # i, a = a
+    # if i < len(articles):
+    #     articles.insert(i + 1, articles.pop(i))
     return redirect(url_for("home"))
 
 

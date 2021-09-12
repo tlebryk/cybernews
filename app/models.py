@@ -24,7 +24,7 @@ class Articles(db.Model):
         return f"{self.title}, {self.source}, {self.id}"
 
 # UPDATEING DATABASE
-db.create_all()
+# db.create_all()
 # db.session.add(Article)
 # db.session.commit()
 
