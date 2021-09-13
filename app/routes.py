@@ -5,6 +5,7 @@ from app.models import Articles
 from app import app, articles, url_ls
 import logging
 from sqlalchemy import desc, text
+from cybernews import exportword
 
 
 @app.route("/")
@@ -22,15 +23,15 @@ def home():
         #     tail = a
     # logging.info(f"tail: {tail}")
     # logging.info(f"head: {head}")
-    logging.info([(k, v) for k, v in elementdict.items()])
+    # logging.info([(k, v) for k, v in elementdict.items()])
     newlist = []
     while head:
-        logging.info(f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
+        # logging.info(f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
         newlist.append(head)
         ind = elementdict.get(head.prevart)
         # ind can == 0 so specify None
         if ind == None:
-            logging.info(f"get {head.prevart} came up empty breaking")
+            # logging.info(f"get {head.prevart} came up empty breaking")
             break
         head = unsortarts[ind]
     return render_template("home.html", articles=newlist)
@@ -223,13 +224,36 @@ def post(art_id=None):
 @app.route("/export", methods=["POST"])
 def background_export():
     """ Downloads articles as word document in proper formatting"""
+    unsortarts = Articles.query.filter_by(briefingdate=TODAY).all()
+    # store id as key, unsorted index as value
+    elementdict = {}
+    head = 0
+    for i, a in enumerate(unsortarts):
+        elementdict[a.id] = i
+        if a.nextart == 0:
+            head = a
+        # if a.prevart == 0:
+        #     tail = a
+    # logging.info(f"tail: {tail}")
+    # logging.info(f"head: {head}")
+    logging.info([(k, v) for k, v in elementdict.items()])
+    newlist = []
+    while head:
+        logging.info(f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
+        newlist.append(head)
+        ind = elementdict.get(head.prevart)
+        # ind can == 0 so specify None
+        if ind == None:
+            logging.info(f"get {head.prevart} came up empty breaking")
+            break
+        head = unsortarts[ind]
     if request.method == "POST":
         exportword.cyber_export(
-            f"docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx", articles
+            f"../docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx", newlist
         )
-        path = f"docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx"
+        path = f"../docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx"
         return send_file(path, as_attachment=True)
-    return render_template("home.html", articles=articles)
+    return render_template("home.html", articles=newlist)
 
 
 @app.route("/printer", methods=["GET", "POST"])

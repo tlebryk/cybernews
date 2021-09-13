@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField
+from wtforms import StringField, SubmitField, TextAreaField, DateTimeField
 from wtforms.validators import DataRequired, Length
 
 
@@ -10,7 +10,7 @@ class ArticleForm(FlaskForm):
     author = StringField("Authors", validators=[DataRequired()])
     body = TextAreaField("Body", validators=[DataRequired()])
     source = StringField("Source")
-    date = StringField("Date of article", validators=[DataRequired()])
+    date = DateTimeField("Date of article", format="%B %d, %Y", validators=[DataRequired()])
     # prevsub = SubmitField("Submit & Next Article")
     nextsub = SubmitField("Submit & Next Article")
     homesub = SubmitField("Submit & Return Home")
