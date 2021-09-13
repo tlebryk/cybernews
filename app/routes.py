@@ -154,6 +154,7 @@ def move_up(art_id):
     if not a:
         flash(f"Article not found")
         return redirect(url_for("home"))
+    logging.info(f"original a: {a.id}, {a.prevart}, {a.nextart}")
     prev = Articles.query.get(a.prevart)
     logging.info(f"move_up prev: {prev}")
     nxt = Articles.query.get(a.nextart)
@@ -170,8 +171,9 @@ def move_up(art_id):
         a.prevart = nxt.id
         nxt.nextart = a.id
     logging.info(f"move_up prev after: {prev}")
-    nxt = Articles.query.get(a.nextart)
+    # nxt = Articles.query.get(a.nextart)
     logging.info(f"move_up nxt after: {nxt}")
+    logging.info(f"original a: {a.id}, {a.prevart}, {a.nextart}")
     db.session.commit()
     return redirect(url_for("home"))
 
