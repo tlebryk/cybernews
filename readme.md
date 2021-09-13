@@ -1,8 +1,11 @@
-An flask web app to automate compilation of cyber security related news. 
+# Daily News Clipping Application
+
+An flask web app to automate compilation of cybersecurity related news. Currently deployed on http://tlebryk1.pythonanywhere.com/. Contact your supervisor for Theo's contact information and he will send you credentials over [Signal](https://signal.org/download/). 
+
 # Directory navigation:
 "cybernews/spiders/" has web scrapers for websites. Within in the "cybernews/" folder there are also some documents to parse previous news clippings and scrape "noise" articles that are irrelevant to help train the learning-to-rank model. 
 
-"notebooks/" contains code to train learning-to-rank models to rank articles by relevancy (as determined by past news clippings). 
+"notebooks/" contains code to train learning-to-rank models to rank articles by relevancy (as determined by past news clippings). `Ranking.ipynb` has the code for the most up to date learning-to-rank model (word embedding model currenly under production)
 
 app.py: flask app which can handle take articles as manual inputs (form entries for metadata), urls (scrapes the url and autopopulates metadata), or simply runs the daily scraper. 
 

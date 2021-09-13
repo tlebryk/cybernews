@@ -1,8 +1,4 @@
 from app import db, TODAY
-
-
-
-
 # Todo: add users
 
 class Articles(db.Model):
@@ -23,10 +19,7 @@ class Articles(db.Model):
     def __repr__(self):
         return f"{self.title}, {self.source}, {self.id}"
 
-# UPDATEING DATABASE
+# UPDATING DATABASE
 # db.create_all()
 # db.session.add(Article)
 # db.session.commit()
-
-# QUERYING DATABASE
-# Article.querry.all()/.first()/.get(id)/filter_by(attribute="someval").all()

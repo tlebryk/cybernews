@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Length
 
 
 class ArticleForm(FlaskForm):
-
+    """ Manual entry form"""
     url = StringField("Url", validators=[DataRequired()])
     title = StringField("Headline", validators=[DataRequired()])
     author = StringField("Authors", validators=[DataRequired()])
@@ -17,6 +17,7 @@ class ArticleForm(FlaskForm):
 
 
 class AutoPopForm(FlaskForm):
+    """ Form to send urls to Zotero server"""
     url0 = StringField("Url1")
     url1 = StringField("Url2")
     url2 = StringField("Url3")
