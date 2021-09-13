@@ -28,7 +28,9 @@ def home():
         logging.info(f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
         newlist.append(head)
         ind = elementdict.get(head.prevart)
-        if not ind:
+        # ind can == 0 so specify None
+        if ind == None:
+            logging.info(f"get {head.prevart} came up empty breaking")
             break
         head = unsortarts[ind]
     return render_template("home.html", articles=newlist)
@@ -157,9 +159,9 @@ def move_up(art_id):
         return redirect(url_for("home"))
     prev = Articles.query.get(a.prevart)
     nxt = Articles.query.get(a.nextart)
-    logging.info(f"original a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
-    logging.info(f"move_up prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
-    logging.info(f"move_up nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
+    # logging.info(f"original a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
+    # logging.info(f"move_up prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
+    # logging.info(f"move_up nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
     if prev and nxt:
         nxt.prevart = prev.id
         prev.nextart = nxt.id
@@ -168,15 +170,15 @@ def move_up(art_id):
         nxt.nextart = a.id
         logging.info("prev and nxt hit")
     elif nxt:
-        nxt.nextart = 0
+        nxt.prevart = 0
         a.nextart = nxt.nextart
         a.prevart = nxt.id
         nxt.nextart = a.id
         logging.info("nxt only hit")
 
-    logging.info(f"move up after a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
-    logging.info(f"move_up after: prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
-    logging.info(f"move_up after nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
+    # logging.info(f"move up after a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
+    # logging.info(f"move_up after: prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
+    # logging.info(f"move_up after nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
     db.session.commit()
     return redirect(url_for("home"))
 
@@ -189,9 +191,9 @@ def move_down(art_id):
         return redirect(url_for("home"))
     prev = Articles.query.get(a.prevart)
     nxt = Articles.query.get(a.nextart)
-    logging.info(f"original a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
-    logging.info(f"move_up prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
-    logging.info(f"move_up nxt: {nxt.id}, prev: {nxt.prevart}, next: {nxt.nextart}")
+    # logging.info(f"original a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
+    # logging.info(f"move_down prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
+    # logging.info(f"move_down nxt: {nxt.id}, prev: {nxt.prevart}, next: {nxt.nextart}")
     if prev and nxt:
         nxt.prevart = prev.id
         prev.nextart = nxt.id
@@ -205,9 +207,9 @@ def move_down(art_id):
         a.prevart = prev.prevart
         prev.prevart = a.id
         logging.info("nxt only hit")
-    logging.info(f"move up after a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
-    logging.info(f"move_up after: prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
-    logging.info(f"move_up after nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
+    # logging.info(f"move down after a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
+    # logging.info(f"move_down after: prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
+    # logging.info(f"move_down after nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
     db.session.commit()
     return redirect(url_for("home"))
 
