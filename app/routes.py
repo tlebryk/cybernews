@@ -21,10 +21,11 @@ def home():
         # if a.prevart == 0:
         #     tail = a
     # logging.info(f"tail: {tail}")
-    logging.info(f"head: {head}")
+    # logging.info(f"head: {head}")
     logging.info([(k, v) for k, v in elementdict.items()])
     newlist = []
     while head:
+        logging.info(f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
         newlist.append(head)
         ind = elementdict.get(head.prevart)
         if not ind:
@@ -190,7 +191,7 @@ def move_down(art_id):
     nxt = Articles.query.get(a.nextart)
     logging.info(f"original a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
     logging.info(f"move_up prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
-    logging.info(f"move_up nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
+    logging.info(f"move_up nxt: {nxt.id}, prev: {nxt.prevart}, next: {nxt.nextart}")
     if prev and nxt:
         nxt.prevart = prev.id
         prev.nextart = nxt.id
