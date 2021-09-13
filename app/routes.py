@@ -165,11 +165,14 @@ def move_up(art_id):
         a.nextart = nxt.nextart
         a.prevart = nxt.id
         nxt.nextart = a.id
+        logging.info("prev and nxt hit")
     elif nxt:
-        nxt.prevart = 0
+        nxt.nextart = 0
         a.nextart = nxt.nextart
         a.prevart = nxt.id
         nxt.nextart = a.id
+        logging.info("nxt only hit")
+
     logging.info(f"move up after a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
     logging.info(f"move_up after: prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
     logging.info(f"move_up after nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
@@ -194,11 +197,13 @@ def move_down(art_id):
         a.nextart = prev.id
         a.prevart = prev.prevart
         prev.prevart = a.id
+        logging.info("prev and nxt hit")
     elif prev:
         prev.nextart = 0
         a.nextart = prev.id
         a.prevart = prev.prevart
         prev.prevart = a.id
+        logging.info("nxt only hit")
     logging.info(f"move up after a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
     logging.info(f"move_up after: prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
     logging.info(f"move_up after nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
