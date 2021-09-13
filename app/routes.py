@@ -167,6 +167,7 @@ def move_up(art_id):
     elif nxt:
         nxt.prevart = 0
         a.nextart = nxt.nextart
+        a.prevart = nxt.id
         nxt.nextart = a.id
     logging.info(f"move_up prev after: {prev}")
     nxt = Articles.query.get(a.nextart)
@@ -191,6 +192,7 @@ def move_down(art_id):
         prev.prevart = a.id
     elif prev:
         prev.nextart = 0
+        a.nextart - prev.id
         a.prevart = prev.prevart
         prev.prevart = a.id
     db.session.commit()
