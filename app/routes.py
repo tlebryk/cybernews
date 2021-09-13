@@ -154,11 +154,11 @@ def move_up(art_id):
     if not a:
         flash(f"Article not found")
         return redirect(url_for("home"))
-    logging.info(f"original a: {a.id}, {a.prevart}, {a.nextart}")
     prev = Articles.query.get(a.prevart)
-    logging.info(f"move_up prev: {prev}")
     nxt = Articles.query.get(a.nextart)
-    logging.info(f"move_up nxt: {nxt}")
+    logging.info(f"original a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
+    logging.info(f"move_up prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
+    logging.info(f"move_up nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
     if prev and nxt:
         nxt.prevart = prev.id
         prev.nextart = nxt.id
@@ -170,10 +170,9 @@ def move_up(art_id):
         a.nextart = nxt.nextart
         a.prevart = nxt.id
         nxt.nextart = a.id
-    logging.info(f"move_up prev after: {prev}")
-    # nxt = Articles.query.get(a.nextart)
-    logging.info(f"move_up nxt after: {nxt}")
-    logging.info(f"original a: {a.id}, {a.prevart}, {a.nextart}")
+    logging.info(f"move up after a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
+    logging.info(f"move_up after: prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
+    logging.info(f"move_up after nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
     db.session.commit()
     return redirect(url_for("home"))
 
@@ -186,6 +185,9 @@ def move_down(art_id):
         return redirect(url_for("home"))
     prev = Articles.query.get(a.prevart)
     nxt = Articles.query.get(a.nextart)
+    logging.info(f"original a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
+    logging.info(f"move_up prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
+    logging.info(f"move_up nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
     if prev and nxt:
         nxt.prevart = prev.id
         prev.nextart = nxt.id
@@ -194,9 +196,12 @@ def move_down(art_id):
         prev.prevart = a.id
     elif prev:
         prev.nextart = 0
-        a.nextart - prev.id
+        a.nextart = prev.id
         a.prevart = prev.prevart
         prev.prevart = a.id
+    logging.info(f"move up after a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
+    logging.info(f"move_up after: prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
+    logging.info(f"move_up after nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
     db.session.commit()
     return redirect(url_for("home"))
 
