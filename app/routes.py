@@ -79,9 +79,9 @@ def add_article():
         db.session.add(article)
         db.session.flush()
         db.session.refresh(article)
-        logging.info(f"prev art before: {final.prevart}")
+        logging.info(f"final prev art before: {final.prevart}")
         final.prevart = article.id
-        logging.info(f"prev art after: {final.prevart}")
+        logging.info(f"final prev art after: {final.prevart}")
         db.session.commit()
         logging.info(f"added article: {f}")
     if f.homesub.data:
@@ -155,7 +155,9 @@ def move_up(art_id):
         flash(f"Article not found")
         return redirect(url_for("home"))
     prev = Articles.query.get(a.prevart)
+    logging.info(f"move_up prev: {prev}")
     nxt = Articles.query.get(a.nextart)
+    logging.info(f"move_up nxt: {nxt}")
     if prev and nxt:
         nxt.prevart = prev.id
         prev.nextart = nxt.id
@@ -166,6 +168,9 @@ def move_up(art_id):
         nxt.prevart = 0
         a.nextart = nxt.nextart
         nxt.nextart = a.id
+    logging.info(f"move_up prev after: {prev}")
+    nxt = Articles.query.get(a.nextart)
+    logging.info(f"move_up nxt after: {nxt}")
     db.session.commit()
     return redirect(url_for("home"))
 
