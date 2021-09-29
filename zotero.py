@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil import parser
 
 
-server = "http://trans:1969/web"
+server = "https://arcane-meadow-07118.herokuapp.com/web"
 headers = {"content-type": r"text/plain"}
 
 

@@ -6,6 +6,7 @@ from app import app, articles, url_ls
 import logging
 from sqlalchemy import desc, text
 from cybernews import exportword
+from zotero import get_meta 
 
 
 @app.route("/")
@@ -271,24 +272,25 @@ def url_form():
     Allows user to add urls for select sites, will autopopulate information
     """
     pass
-    # f = AutoPopForm()
-    # if request.method == "POST":
-    #     req = request.form.copy()
-    #     req.pop("submit")
-    #     req.pop("csrf_token")
-    #     global url_ls
-    #     url_ls = [v for v in req.values() if v]
-    #     # url_clump = AS.sort_urls2(url_ls)
-    #     result = crawl2(url_ls=url_ls)
-    #     if not result:
-    #         flash(f"No urls", "warning")
-    #         return redirect(url_for("home"))
-    # if f.validate_on_submit():
-    #     start, _ = result
-    #     flash(f"Added urls", "success")
-    #     return redirect(url_for("update_post",
-    #         article_title=articles[start]['title']))
-    # return render_template("url_form.html", form=f, legend="Create Post")
+    f = AutoPopForm()
+    if request.method == "POST":
+        req = request.form.copy()
+        req.pop("submit")
+        req.pop("csrf_token")
+        global url_ls
+        url_ls = [v for v in req.values() if v]
+        # url_clump = AS.sort_urls2(url_ls)
+        result = crawl2(url_ls=url_ls)
+        if not result:
+            flash(f"No urls", "warning")
+            return redirect(url_for("home"))
+    if f.validate_on_submit():
+        get_meta()
+        start, _ = result
+        flash(f"Added urls", "success")
+        return redirect(url_for("update_post",
+            article_title=articles[start]['title']))
+    return render_template("url_form.html", form=f, legend="Create Post")
 
 
 # @app.route("/results")
