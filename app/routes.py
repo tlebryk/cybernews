@@ -266,12 +266,72 @@ def printer():
     return render_template("home.html", articles=articles)
 
 
+@app.route("/crawl2", methods=["POST"])
+def crawl2(url_ls):
+    """Send urls to a zotero translationserver and 
+        return the index of the first such article and 
+        number of articles added [under construction]
+    """
+    arts = Articles.query.filter_by(briefingdate=TODAY)
+    final = arts.first()
+    # return the id of the first article added
+    # or none if no articles in list
+    start = None
+    counter = 0
+    if not final:  
+        class filler:
+            id = 0
+            prevart = None
+
+        final = filler()
+        logging.info(
+            "No articles found during add_article. Initializing today's linked list"
+        )
+    else:
+        while final.prevart and counter < 1000:
+            final = Articles.query.get(final.prevart)
+            counter += 1
+        logging.info(
+            f"""finalprevart:{final.prevart};
+            finalnextart:{final.nextart};
+            finalid: {final.id};
+            finaltitle: {final.title};"""
+        )
+    if not url_ls:
+        return False
+    for i, url in enumerate(url_ls):
+        data = get_meta(url)
+
+        article = Articles(
+            url = data["url"],
+            title=data["title"],
+            authors=data["author"],
+            body=data["body"],
+            source=data["source"],
+            artdate=data["date"],
+            prevart=0,
+            nextart=final.id,
+            # ranking = ranking,
+        )
+        db.session.add(article)
+        db.session.flush()
+        db.session.refresh(article)
+        logging.info(f"final prev art before: {final.prevart}")
+        final.prevart = article.id
+        logging.info(f"final prev art after: {final.prevart}")
+        db.session.commit()
+        logging.info(f"added article: {data}")
+        # save id of first entry 
+        if i == 0:
+            start = article.id
+    return start 
+
+
 @app.route("/url_form", methods=["POST", "GET"])
 def url_form():
     """Currently not fuctional
     Allows user to add urls for select sites, will autopopulate information
     """
-    pass
     f = AutoPopForm()
     if request.method == "POST":
         req = request.form.copy()
@@ -285,12 +345,11 @@ def url_form():
             flash(f"No urls", "warning")
             return redirect(url_for("home"))
     if f.validate_on_submit():
-        get_meta()
-        start, _ = result
         flash(f"Added urls", "success")
         return redirect(url_for("update_post",
-            article_title=articles[start]['title']))
+            art_id=result))
     return render_template("url_form.html", form=f, legend="Create Post")
+
 
 
 # @app.route("/results")
