@@ -6,7 +6,7 @@ from app import app, articles, url_ls
 import logging
 from sqlalchemy import desc, text
 from cybernews import exportword
-from zotero import get_meta 
+from zotero import get_meta
 
 
 @app.route("/")
@@ -268,8 +268,8 @@ def printer():
 
 @app.route("/crawl2", methods=["POST"])
 def crawl2(url_ls):
-    """Send urls to a zotero translationserver and 
-        return the index of the first such article and 
+    """Send urls to a zotero translationserver and
+        return the index of the first such article and
         number of articles added [under construction]
     """
     arts = Articles.query.filter_by(briefingdate=TODAY)
@@ -278,7 +278,7 @@ def crawl2(url_ls):
     # or none if no articles in list
     start = None
     counter = 0
-    if not final:  
+    if not final:
         class filler:
             id = 0
             prevart = None
@@ -321,10 +321,10 @@ def crawl2(url_ls):
         logging.info(f"final prev art after: {final.prevart}")
         db.session.commit()
         logging.info(f"added article: {data}")
-        # save id of first entry 
+        # save id of first entry
         if i == 0:
             start = article.id
-    return start 
+    return start
 
 
 @app.route("/url_form", methods=["POST", "GET"])
@@ -337,7 +337,6 @@ def url_form():
         req = request.form.copy()
         req.pop("submit")
         req.pop("csrf_token")
-        global url_ls
         url_ls = [v for v in req.values() if v]
         # url_clump = AS.sort_urls2(url_ls)
         result = crawl2(url_ls=url_ls)

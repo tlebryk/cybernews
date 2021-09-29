@@ -22,9 +22,9 @@ logging.basicConfig(level=logging.INFO)
 
 app.config["SECRET_KEY"] = os.environ.get("FLASKKEY", "146abd9")
 sqlpwd = os.environ.get("SQLPWD")
-
+logging.info(f"sql {sqlpwd}")
 # make more secure later
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://tlebryk1:flasktake@tlebryk1.mysql.pythonanywhere-services.com/tlebryk1$default"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://tlebryk1:45Fl45bubuoi@tlebryk1.mysql.pythonanywhere-services.com/tlebryk1$default"
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
