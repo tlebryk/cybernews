@@ -27,13 +27,13 @@ et-xmlfile==1.0.1
 extract-msg==0.23.1
 feedparser==5.2.1
 filelock==3.0.12
-Flask==1.1.2
+Flask==2.0.2
 Flask-SocketIO==5.0.1
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==0.14.3
 future==0.18.2
 greenlet==1.1.1
-gunicorn==20.0.4
+gunicorn==20.1.0
 html-text==0.5.2
 html2text==2020.1.16
 hyperlink==21.0.0
@@ -45,9 +45,9 @@ ipython==7.21.0
 ipython-genutils==0.2.0
 itemadapter==0.2.0
 itemloaders==1.0.4
-itsdangerous==1.1.0
+itsdangerous==2.0.1
 jedi==0.18.0
-Jinja2==2.11.3
+Jinja2==3.0.2
 jmespath==0.10.0
 joblib==1.0.1
 jsonschema==3.2.0
@@ -57,7 +57,7 @@ kiwisolver==1.3.1
 klein==20.6.0
 lightgbm==3.2.0
 lxml==4.6.2
-MarkupSafe==1.1.1
+MarkupSafe==2.0.1
 matplotlib==3.4.1
 mistune==0.8.4
 nbconvert==5.6.1
@@ -126,7 +126,7 @@ w3lib==1.22.0
 wcwidth==0.2.5
 webencodings==0.5.1
 webstruct==0.6
-Werkzeug==1.0.1
+Werkzeug==2.0.1
 wincertstore==0.2
 WTForms==2.3.3
 xlrd==1.2.0
