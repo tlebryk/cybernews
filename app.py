@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, flash 
 from forms import ArticleForm
+import logging
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "6f1f6f1c724600453622f48c48555e73"
@@ -9,6 +10,7 @@ articles = []
 @app.route("/")
 @app.route("/home", methods=["GET", "POST"])
 def home():
+    logging.info(articles)
     return render_template("home.html", articles=articles)
 
 """
