@@ -10,6 +10,7 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "defalt_key")
     CSRF_ENABLED = True
     DATABASE_URL = os.getenv("DATABASE_URL", "error")
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgressql://")
     POSTGRESPWD = os.getenv("POSTGRESPWD", "")
     SQLALCHEMY_DATABASE_URI = DATABASE_URL.format(POSTGRESPWD=POSTGRESPWD)
     # SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://postgres:{POSTGRESPWD}@localhost/arts"
