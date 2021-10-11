@@ -3,7 +3,7 @@ import os
 from datetime import date, datetime
 from flask import Flask, render_template, redirect, url_for, request, flash, send_file
 from flask_migrate import Migrate
-from forms import ArticleForm
+from forms import ArticleForm, AutoPopForm
 from flask_sqlalchemy import SQLAlchemy
 import exportword
 from zotero import get_meta
@@ -377,6 +377,28 @@ def crawl2(url_ls):
     return start
 
 
+
+@app.route("/url_form", methods=["POST", "GET"])
+def url_form():
+    """Currently not fuctional
+    Allows user to add urls for select sites, will autopopulate information
+    """
+    f = AutoPopForm()
+    if request.method == "POST":
+        req = request.form.copy()
+        req.pop("submit")
+        req.pop("csrf_token")
+        url_ls = [v for v in req.values() if v]
+        # url_clump = AS.sort_urls2(url_ls)
+        result = crawl2(url_ls=url_ls)
+        if not result:
+            flash(f"No urls", "warning")
+            return redirect(url_for("home"))
+    if f.validate_on_submit():
+        flash(f"Added urls", "success")
+        return redirect(url_for("update_post",
+            art_id=result))
+    return render_template("url_form.html", form=f, legend="Create Post")
 
 # @app.route("/post/<article_title>/delete_post", methods=["POST"])
 # def delete_post(article_title):

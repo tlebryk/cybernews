@@ -60,7 +60,12 @@ def get_meta(data, server=server, headers=headers):
                     date = parser.parse(dt[:10])
                     date = datetime.strftime(date, "%B %d, %Y")
                 except:
+                    date = datetime.today()
                     print("filler error")
+        else:
+            # assume article was written today if no date found. 
+            date = datetime.today()
+
         
         body = d.get("abstractNote")
         title = d.get("title")
