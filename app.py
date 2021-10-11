@@ -1,10 +1,11 @@
-from flask import Flask, render_template, redirect, url_for, request, flash 
-from flask_migrate import Migrate
-from forms import ArticleForm
-from flask_sqlalchemy import SQLAlchemy
 import logging
 import os
 from datetime import date, datetime
+from flask import Flask, render_template, redirect, url_for, request, flash, send_file
+from flask_migrate import Migrate
+from forms import ArticleForm
+from flask_sqlalchemy import SQLAlchemy
+import exportword
 
 HOMEDIR = os.path.expanduser("~")
 DATETIMENOW = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -280,7 +281,36 @@ def post(art_id=None):
 @app.route("/export", methods=["POST"])
 def background_export():
     """ Downloads articles as word document in proper formatting"""
-    pass
+    unsortarts = Articles.query.filter_by(briefingdate=TODAY).all()
+    # store id as key, unsorted index as value
+    elementdict = {}
+    head = 0
+    for i, a in enumerate(unsortarts):
+        elementdict[a.id] = i
+        if a.nextart == 0:
+            head = a
+        # if a.prevart == 0:
+        #     tail = a
+    # logging.info(f"tail: {tail}")
+    # logging.info(f"head: {head}")
+    # logging.info([(k, v) for k, v in elementdict.items()])
+    articles = []
+    while head:
+        logging.info(f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
+        articles.append(head)
+        ind = elementdict.get(head.prevart)
+        # ind can == 0 so specify None
+        if ind == None:
+            logging.info(f"get {head.prevart} came up empty breaking")
+            break
+        head = unsortarts[ind]
+    if request.method == "POST":
+        exportword.cyber_export(
+            f"docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx", articles
+        )
+        path = f"docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx"
+        return send_file(path, as_attachment=True)
+    return render_template("home.html", articles=articles)
 
 # @app.route("/post/<article_title>/delete_post", methods=["POST"])
 # def delete_post(article_title):
