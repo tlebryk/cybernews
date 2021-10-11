@@ -10,7 +10,7 @@ class Articles(db.Model):
     body = db.Column(db.Text)
     authors = db.Column(db.String(200))
     source = db.Column(db.String(100))
-    url = db.Column(db.String(200))
+    url = db.Column(db.String(500))
     # date is not super important so no need to worry about utc for now
     artdate = db.Column(db.Date, default=TODAY)
     briefingdate = db.Column(db.Date, nullable=False, default=TODAY)

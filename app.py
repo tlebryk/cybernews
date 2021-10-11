@@ -323,35 +323,36 @@ def crawl2(url_ls):
         number of articles added [under construction]
     """
     arts = Articles.query.filter_by(briefingdate=TODAY)
-    final = arts.first()
+    nextart = arts.first()
     # return the id of the first article added
     # or none if no articles in list
     start = None
     counter = 0
-    if not final:
+    if not nextart:
         class filler:
             id = 0
             prevart = None
+            # firstflag = True
 
-        final = filler()
+        nextart = filler()
         logging.info(
             "No articles found during add_article. Initializing today's linked list"
         )
     else:
-        while final.prevart and counter < 1000:
-            final = Articles.query.get(final.prevart)
+        while nextart.prevart and counter < 1000:
+            nextart = Articles.query.get(nextart.prevart)
             counter += 1
         logging.info(
-            f"""finalprevart:{final.prevart};
-            finalnextart:{final.nextart};
-            finalid: {final.id};
-            finaltitle: {final.title};"""
+            f"""nextartprevart:{nextart.prevart};
+            nextartnextart:{nextart.nextart};
+            nextartid: {nextart.id};
+            nextarttitle: {nextart.title};"""
         )
     if not url_ls:
         return False
+    # nxtart = None
     for i, url in enumerate(url_ls):
         data = get_meta(url)
-
         article = Articles(
             url = data["url"],
             title=data["title"],
@@ -360,20 +361,27 @@ def crawl2(url_ls):
             source=data["source"],
             artdate=data["date"],
             prevart=0,
-            nextart=final.id,
+            nextart=nextart.id,
             # ranking = ranking,
         )
         db.session.add(article)
         db.session.flush()
         db.session.refresh(article)
-        logging.info(f"final prev art before: {final.prevart}")
-        final.prevart = article.id
-        logging.info(f"final prev art after: {final.prevart}")
+        # if nxtart:
+        #     a = Articles.query.get(nxtart)
+        #     a.prevart = article.id
+        #     db.session.commit()
+        logging.info(f"nextart prev art before: {nextart.prevart}")
+        nextart.prevart = article.id
+        logging.info(f"nextart prev art after: {nextart.prevart}")
+        # if not nextart.get("firstflag"):
+        # even if first article, only a postgres object will get committed. 
         db.session.commit()
         logging.info(f"added article: {data}")
         # save id of first entry
         if i == 0:
             start = article.id
+        nextart = article
     return start
 
 
