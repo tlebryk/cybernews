@@ -75,12 +75,12 @@ def home():
     # logging.info([(k, v) for k, v in elementdict.items()])
     newlist = []
     while head:
-        # logging.info(f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
+        logging.info(f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
         newlist.append(head)
         ind = elementdict.get(head.prevart)
         # ind can == 0 so specify None
         if ind == None:
-            # logging.info(f"get {head.prevart} came up empty breaking")
+            logging.info(f"get {head.prevart} came up empty breaking")
             break
         head = unsortarts[ind]
     return render_template("home.html", articles=newlist)
@@ -209,6 +209,8 @@ def move_up(art_id):
         return redirect(url_for("home"))
     prev = Articles.query.get(a.prevart)
     nxt = Articles.query.get(a.nextart)
+    nxtnxt = Articles.query.get(nxt.nextart)
+
     # logging.info(f"original a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
     # logging.info(f"move_up prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
     # logging.info(f"move_up nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
@@ -225,6 +227,8 @@ def move_up(art_id):
         a.prevart = nxt.id
         nxt.nextart = a.id
         logging.info("nxt only hit")
+    if nxtnxt:
+        nxtnxt.prevart = a.id
 
     # logging.info(f"move up after a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
     # logging.info(f"move_up after: prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
@@ -241,6 +245,8 @@ def move_down(art_id):
         return redirect(url_for("home"))
     prev = Articles.query.get(a.prevart)
     nxt = Articles.query.get(a.nextart)
+    prevprev = Articles.query.get(prev.prevart)
+
     # logging.info(f"original a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
     # logging.info(f"move_down prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
     # logging.info(f"move_down nxt: {nxt.id}, prev: {nxt.prevart}, next: {nxt.nextart}")
@@ -256,7 +262,9 @@ def move_down(art_id):
         a.nextart = prev.id
         a.prevart = prev.prevart
         prev.prevart = a.id
-        logging.info("nxt only hit")
+        logging.info("prev only hit")
+    if prevprev:
+        prevprev.nxt = a.id
     # logging.info(f"move down after a: id: {a.id}, prev: {a.prevart}, next: {a.nextart}")
     # logging.info(f"move_down after: prev: {prev.id}, prev: {prev.prevart}, next: {prev.nextart}")
     # logging.info(f"move_down after nxt: {nxt.id}, nxt: {nxt.prevart}, next: {nxt.nextart}")
@@ -268,6 +276,7 @@ def move_down(art_id):
 def post(art_id=None):
     a = Articles.query.get_or_404(art_id)
     return render_template("post.html", title=a.title, art=a)
+    
 @app.route("/export", methods=["POST"])
 def background_export():
     """ Downloads articles as word document in proper formatting"""
@@ -345,7 +354,7 @@ def background_export():
     """
 set DATABASE_URL=postgres://$(whoami)
 set FLASK_DEBUG=1
-set FLASK_ENV=development & set flask run
+set FLASK_ENV=development & flask run
 to move from staging to prod:
 heroku pipelines:promote -- remote staging
 """
