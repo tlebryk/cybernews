@@ -281,6 +281,8 @@ def post(art_id=None):
 @app.route("/export", methods=["POST"])
 def background_export():
     """ Downloads articles as word document in proper formatting"""
+    if not os.path.exists("docs"):
+        os.makedirs("docs")
     unsortarts = Articles.query.filter_by(briefingdate=TODAY).all()
     # store id as key, unsorted index as value
     elementdict = {}
