@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from forms import ArticleForm
 from flask_sqlalchemy import SQLAlchemy
 import exportword
+from zotero import get_meta
 
 HOMEDIR = os.path.expanduser("~")
 DATETIMENOW = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -311,6 +312,69 @@ def background_export():
         path = f"docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx"
         return send_file(path, as_attachment=True)
     return render_template("home.html", articles=articles)
+
+
+@app.route("/crawl2", methods=["POST"])
+def crawl2(url_ls):
+    """Send urls to a zotero translationserver and
+        return the index of the first such article and
+        number of articles added [under construction]
+    """
+    arts = Articles.query.filter_by(briefingdate=TODAY)
+    final = arts.first()
+    # return the id of the first article added
+    # or none if no articles in list
+    start = None
+    counter = 0
+    if not final:
+        class filler:
+            id = 0
+            prevart = None
+
+        final = filler()
+        logging.info(
+            "No articles found during add_article. Initializing today's linked list"
+        )
+    else:
+        while final.prevart and counter < 1000:
+            final = Articles.query.get(final.prevart)
+            counter += 1
+        logging.info(
+            f"""finalprevart:{final.prevart};
+            finalnextart:{final.nextart};
+            finalid: {final.id};
+            finaltitle: {final.title};"""
+        )
+    if not url_ls:
+        return False
+    for i, url in enumerate(url_ls):
+        data = get_meta(url)
+
+        article = Articles(
+            url = data["url"],
+            title=data["title"],
+            authors=data["author"],
+            body=data["body"],
+            source=data["source"],
+            artdate=data["date"],
+            prevart=0,
+            nextart=final.id,
+            # ranking = ranking,
+        )
+        db.session.add(article)
+        db.session.flush()
+        db.session.refresh(article)
+        logging.info(f"final prev art before: {final.prevart}")
+        final.prevart = article.id
+        logging.info(f"final prev art after: {final.prevart}")
+        db.session.commit()
+        logging.info(f"added article: {data}")
+        # save id of first entry
+        if i == 0:
+            start = article.id
+    return start
+
+
 
 # @app.route("/post/<article_title>/delete_post", methods=["POST"])
 # def delete_post(article_title):
