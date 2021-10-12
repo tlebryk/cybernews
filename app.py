@@ -177,6 +177,7 @@ def delete_all():
 
 @app.route("/post/<int:art_id>/update", methods=["POST", "GET"])
 def update_post(art_id):
+    logging.info("IM AT UPDATE POST")
     a = Articles.query.get_or_404(art_id)
     if not a:
         flash(f"Article not found")
@@ -200,6 +201,15 @@ def update_post(art_id):
         flash(f"Updated {f.title.data}", "success")
         if f.homesub.data:
             return redirect(url_for("home"))
+        elif f.nextsub.data:
+            if not a.prevart:
+                flash("No more articles to update")
+                return redirect(url_for("home"))
+            else:
+                logging.info(f"prev art {a.prevart}")
+                return redirect(url_for("update_post",
+                    art_id=a.prevart))
+            # return redirect(url_for("add_article"))
     return render_template("article_form.html", form=f, legend="Update Post")
 
 
