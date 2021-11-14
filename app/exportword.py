@@ -2,6 +2,7 @@
 
 import json
 import sys
+import logging
 from datetime import datetime
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import RGBColor, Length, Pt
@@ -11,6 +12,7 @@ from app.wordformat import add_hyperlink, add_bookmark, book_link
 # briefing should be either "CEFP News Briefing"
 # or "Daily Cyber News Briefing"
 def exporter(briefing, export_path, obj):
+    logging.info("reacgehed exporter")
     doc = Document()
     styles = doc.styles
     new_heading_style = styles.add_style('New Heading', WD_STYLE_TYPE.PARAGRAPH)
@@ -73,13 +75,20 @@ def exporter(briefing, export_path, obj):
         para_format.line_spacing = 1
         para_format.space_before = 0 
         para_format.space_after = 0
+    logging.info(f"doc full: {doc.paragraphs}")
+    logging.info(f"doc full: {export_path}")
+    
     doc.save(export_path)
+    logging.info(f"doc export path")
+
 
 
 def CEFP_export(export_path, obj):
     exporter("CEFP News Briefing", export_path,obj) 
 
 def cyber_export(export_path, obj):
+    logging.info("reacgehed cyber exportere")
+
     exporter("Daily Cyber News Briefing", export_path, obj)
 
 

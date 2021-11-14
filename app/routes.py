@@ -281,10 +281,12 @@ def background_export():
             break
         head = unsortarts[ind]
     if request.method == "POST":
+        # cyber_export is relative to run.py
         cyber_export(
-            f"docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx", articles
+            f"docs\\Cyber_Briefing.docx", articles
         )
-        path = f"docs/Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx"
+        # send_file is relative to app/ 
+        path = f"../docs\\Cyber_Briefing.docx"
         return send_file(path, as_attachment=True)
     return render_template("home.html", articles=articles)
 
