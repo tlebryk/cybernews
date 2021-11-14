@@ -6,7 +6,7 @@ from datetime import datetime
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import RGBColor, Length, Pt
 from docx import Document
-from wordformat import add_hyperlink, add_bookmark, book_link
+from app.wordformat import add_hyperlink, add_bookmark, book_link
 
 # briefing should be either "CEFP News Briefing"
 # or "Daily Cyber News Briefing"

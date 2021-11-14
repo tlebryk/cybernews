@@ -1,3 +1,6 @@
 __pycache__
 .env
-docs/
+*.docx
+*.doc
+scratch*
+commands.txt
