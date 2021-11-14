@@ -4,11 +4,16 @@ from datetime import date, datetime
 from flask import Flask, render_template, redirect, url_for, request, flash, send_file
 # from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+import crochet
+from scrapy import signals
+from scrapy.crawler import CrawlerRunner
+from scrapy.signalmanager import dispatcher 
 from app import app, db, TODAY, migrate
 from app.models import Articles
 from app.forms import ArticleForm, AutoPopForm
 from app.exportword import cyber_export
 from app.zotero import get_meta
+
 
 HOMEDIR = os.path.expanduser("~")
 DATETIMENOW = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -22,6 +27,7 @@ logging.basicConfig(level=logging.INFO)
 
 TODAY = date.today()
 
+crochet.setup()
 @app.route("/")
 @app.route("/home", methods=["GET", "POST"])
 def home():
@@ -291,8 +297,8 @@ def background_export():
     return render_template("home.html", articles=articles)
 
 
-@app.route("/crawl2", methods=["POST"])
-def crawl2(url_ls):
+@app.route("/crawl", methods=["POST"])
+def crawl(url_ls):
     """Send urls to a zotero translationserver and
         return the index of the first such article and
         number of articles added [under construction]
@@ -373,7 +379,7 @@ def url_form():
         req.pop("csrf_token")
         url_ls = [v for v in req.values() if v]
         # url_clump = AS.sort_urls2(url_ls)
-        result = crawl2(url_ls=url_ls)
+        result = crawl(url_ls=url_ls)
         if not result:
             flash(f"No urls", "warning")
             return redirect(url_for("home"))
@@ -383,72 +389,28 @@ def url_form():
             art_id=result))
     return render_template("url_form.html", form=f, legend="Create Post")
 
-# @app.route("/post/<article_title>/delete_post", methods=["POST"])
-# def delete_post(article_title):
-#     a = find_art(article_title)
-#     if not a:
-#         flash(f"Article not found")
-#     i, _ = a
-#     articles.pop(i)
-#     return redirect(url_for("home"))
 
-# @app.route("/delete_all", methods=["POST"])
-# def delete_all():
-#     global articles
-#     articles = []
-#     return redirect(url_for("home"))
+@app.route("/dailyscrape")
+def getdaily():
+    try:
+        df = DR.get_todays_js()
+    except ValueError:
+        flash(f"No articles found", "warning")
+        return redirect(url_for("home"))
 
-# # returns None if not found or current position
-# def find_art(article_title):
-#     for i, art in enumerate(articles):
-#         if art["title"] == article_title:
-#             a = art
-#             return i, a
-
-# # downloads articles as word document in proper formatting
-# @app.route("/export", methods=["POST"])
-# def background_export():
-#     pass
-#     # if request.method == "POST":
-#     #     exportword.cyber_export(
-#     #         f"docs/Cyber_Briefing_{td.strftime('%B_%d_%Y')}.docx", articles
-#     #     )
-#     #     path = f"docs/Cyber_Briefing_{td.strftime('%B_%d_%Y')}.docx"
-#     #     return send_file(path, as_attachment=True)
-#     # return render_template("home.html", articles=articles)
-
-
-# @app.route("/post/<article_title>/moveup", methods=["POST"])
-# def move_up(article_title):
-#     a = find_art(article_title)
-#     if not a:
-#         flash(f"Article not found")
-#         return redirect(url_for("home"))
-#     i, a = a
-#     if i > 0:
-#         articles.insert(i - 1, articles.pop(i))
-#     return redirect(url_for("home"))
-
-
-# @app.route("/post/<article_title>/movedown", methods=["POST"])
-# def move_down(article_title):
-#     a = find_art(article_title)
-#     if not a:
-#         flash(f"Article not found")
-#         return redirect(url_for("home"))
-#     i, a = a
-#     if i < len(articles):
-#         articles.insert(i + 1, articles.pop(i))
-#     return redirect(url_for("home"))
-
-
-# @app.route("/article/<article_title>")
-# def post(article_title):
-#     a = find_art(article_title)
-#     if not a:
-#         flash("Article not found", "warning")
-#         return redirect(url_for("home"))
-#     _, a = a
-#     return render_template("post.html", title=a["title"], art=a)
-
-
+@crochet.run_in_reactor
+def scrape_with_crochet(url):
+    dispatcher
+    # df = rank.sort(df)
+    # # df.date = df.date.dt.strftime("%B %d, %Y")
+    # arts = df.to_json(orient="records")
+    # df.date = str(df.date)
+    # a = json.loads(arts)
+    # # arts = DR.main(process=crawl_runner)
+    # a = a[::-1]
+    # for el in a:
+    #     for key, value in el.items():
+    #         el[key] = str(value)
+    # # [print(type(x), x) for x in a[1].values()]
+    # articles.extend(a[:7])
+    # return redirect(url_for("home"))
