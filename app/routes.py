@@ -283,10 +283,10 @@ def background_export():
     if request.method == "POST":
         # cyber_export is relative to run.py
         cyber_export(
-            f"docs\\Cyber_Briefing.docx", articles
+            f"docs\\Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx", articles
         )
         # send_file is relative to app/ 
-        path = f"../docs\\Cyber_Briefing.docx"
+        path = f"../docs\\Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx"
         return send_file(path, as_attachment=True)
     return render_template("home.html", articles=articles)
 
@@ -452,10 +452,3 @@ def url_form():
 #     return render_template("post.html", title=a["title"], art=a)
 
 
-    """
-set DATABASE_URL=postgres://$(whoami)
-set FLASK_DEBUG=1
-set FLASK_ENV=development & flask run
-to move from staging to prod:
-heroku pipelines:promote -- remote staging
-"""
