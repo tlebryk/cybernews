@@ -15,6 +15,7 @@ from app.exportword import cyber_export
 from app.zotero import get_meta
 
 
+
 HOMEDIR = os.path.expanduser("~")
 DATETIMENOW = datetime.now().strftime("%Y%m%d_%H%M%S")
 logging.basicConfig(
@@ -400,7 +401,18 @@ def getdaily():
 
 @crochet.run_in_reactor
 def scrape_with_crochet(url):
-    dispatcher
+    dispatcher.connect(_crawler_result, signal=signals.item_scraped)
+
+    eventual = crawl_runner.crawl(SPIDER, category=baseURL)
+    return eventual 
+
+def _crawler_result(item, response, spider):
+    print(item)
+    
+    # db.session.add(item)
+    # output_data.append(dict(item))
+
+
     # df = rank.sort(df)
     # # df.date = df.date.dt.strftime("%B %d, %Y")
     # arts = df.to_json(orient="records")
