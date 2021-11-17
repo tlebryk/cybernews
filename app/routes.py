@@ -13,8 +13,8 @@ from app.models import Articles
 from app.forms import ArticleForm, AutoPopForm
 from app.exportword import cyber_export
 from app.zotero import get_meta
-
-
+from scrapers.scrapers.spiders import dailyspider
+from scrapy.crawler import CrawlerRunner
 
 HOMEDIR = os.path.expanduser("~")
 DATETIMENOW = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -27,6 +27,8 @@ logging.basicConfig(
 logging.basicConfig(level=logging.INFO)
 
 TODAY = date.today()
+
+crawl_runner = CrawlerRunner()
 
 crochet.setup()
 @app.route("/")
@@ -393,21 +395,28 @@ def url_form():
 
 @app.route("/dailyscrape")
 def getdaily():
-    try:
-        df = DR.get_todays_js()
-    except ValueError:
-        flash(f"No articles found", "warning")
-        return redirect(url_for("home"))
+    scrape_with_crochet()
+    time.sleep(20)
+    # return jsonify(output_data)
+    # try:
+    #     df = DR.get_todays_js()
+    # except ValueError:
+    #     flash(f"No articles found", "warning")
+    #     return redirect(url_for("home"))
+
 
 @crochet.run_in_reactor
-def scrape_with_crochet(url):
+def scrape_with_crochet():
     dispatcher.connect(_crawler_result, signal=signals.item_scraped)
 
-    eventual = crawl_runner.crawl(SPIDER, category=baseURL)
+    eventual = crawl_runner.crawl(dailyspider.FCWDaily, 
+        **dict(date_check=True))
     return eventual 
 
 def _crawler_result(item, response, spider):
-    print(item)
+    logging.info(item)
+    logging.info(dict(item))
+
     
     # db.session.add(item)
     # output_data.append(dict(item))
