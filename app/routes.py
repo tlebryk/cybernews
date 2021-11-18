@@ -1,20 +1,22 @@
 import logging
 import os
 from datetime import date, datetime
-from flask import Flask, render_template, redirect, url_for, request, flash, send_file
+from flask import Flask, render_template, redirect, url_for, request, flash, send_file, jsonify
 # from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 import crochet
 from scrapy import signals
 from scrapy.crawler import CrawlerRunner
-from scrapy.signalmanager import dispatcher 
+from scrapy.signalmanager import dispatcher
 from app import app, db, TODAY, migrate
 from app.models import Articles
 from app.forms import ArticleForm, AutoPopForm
 from app.exportword import cyber_export
 from app.zotero import get_meta
-from scrapers.scrapers.spiders import dailyspider
+from scrapers.spiders import dailyspider
 from scrapy.crawler import CrawlerRunner
+from scrapy.utils.project import get_project_settings
+from time import sleep
 
 HOMEDIR = os.path.expanduser("~")
 DATETIMENOW = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -24,13 +26,22 @@ logging.basicConfig(
     # filename=f"{HOMEDIR}/Desktop/repos/protocol-china/wipo/logs/run_wipopagelink_scraper/scrapy_wipo_{DATETIMENOW}.log",
     level=logging.INFO,
 )
+
+
 logging.basicConfig(level=logging.INFO)
 
 TODAY = date.today()
 
-crawl_runner = CrawlerRunner()
+settings = get_project_settings()
+# settings = {"ITEM_PIPELINES": {
+#     'pipelines.ScrapersPipeline': 300
+# }
+# }
+crawl_runner = CrawlerRunner(settings)
 
 crochet.setup()
+
+
 @app.route("/")
 @app.route("/home", methods=["GET", "POST"])
 def home():
@@ -49,7 +60,8 @@ def home():
     # logging.info([(k, v) for k, v in elementdict.items()])
     newlist = []
     while head:
-        logging.info(f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
+        logging.info(
+            f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
         newlist.append(head)
         ind = elementdict.get(head.prevart)
         # ind can == 0 so specify None
@@ -180,7 +192,7 @@ def update_post(art_id):
             else:
                 logging.info(f"prev art {a.prevart}")
                 return redirect(url_for("update_post",
-                    art_id=a.prevart))
+                                        art_id=a.prevart))
             # return redirect(url_for("add_article"))
     return render_template("article_form.html", form=f, legend="Update Post")
 
@@ -260,7 +272,8 @@ def move_down(art_id):
 def post(art_id=None):
     a = Articles.query.get_or_404(art_id)
     return render_template("post.html", title=a.title, art=a)
-    
+
+
 @app.route("/export", methods=["POST"])
 def background_export():
     """ Downloads articles as word document in proper formatting"""
@@ -281,7 +294,8 @@ def background_export():
     # logging.info([(k, v) for k, v in elementdict.items()])
     articles = []
     while head:
-        logging.info(f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
+        logging.info(
+            f"head id: {head.id}, prev: {head.prevart}, next: {head.nextart}")
         articles.append(head)
         ind = elementdict.get(head.prevart)
         # ind can == 0 so specify None
@@ -294,7 +308,7 @@ def background_export():
         cyber_export(
             f"docs\\Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx", articles
         )
-        # send_file is relative to app/ 
+        # send_file is relative to app/
         path = f"../docs\\Cyber_Briefing_{TODAY.strftime('%B_%d_%Y')}.docx"
         return send_file(path, as_attachment=True)
     return render_template("home.html", articles=articles)
@@ -338,7 +352,7 @@ def crawl(url_ls):
     for i, url in enumerate(url_ls):
         data = get_meta(url)
         article = Articles(
-            url = data["url"],
+            url=data["url"],
             title=data["title"],
             authors=data["author"],
             body=data["body"],
@@ -359,7 +373,7 @@ def crawl(url_ls):
         nextart.prevart = article.id
         logging.info(f"nextart prev art after: {nextart.prevart}")
         # if not nextart.get("firstflag"):
-        # even if first article, only a postgres object will get committed. 
+        # even if first article, only a postgres object will get committed.
         db.session.commit()
         logging.info(f"added article: {data}")
         # save id of first entry
@@ -367,7 +381,6 @@ def crawl(url_ls):
             start = article.id
         nextart = article
     return start
-
 
 
 @app.route("/url_form", methods=["POST", "GET"])
@@ -389,14 +402,16 @@ def url_form():
     if f.validate_on_submit():
         flash(f"Added urls", "success")
         return redirect(url_for("update_post",
-            art_id=result))
+                                art_id=result))
     return render_template("url_form.html", form=f, legend="Create Post")
 
 
 @app.route("/dailyscrape")
 def getdaily():
-    scrape_with_crochet()
-    time.sleep(20)
+    result = scrape_with_crochet()
+    sleep(20)
+    logging.info(f"result: {result}")
+    return redirect(url_for("home"))
     # return jsonify(output_data)
     # try:
     #     df = DR.get_todays_js()
@@ -409,18 +424,58 @@ def getdaily():
 def scrape_with_crochet():
     dispatcher.connect(_crawler_result, signal=signals.item_scraped)
 
-    eventual = crawl_runner.crawl(dailyspider.FCWDaily, 
-        **dict(date_check=True))
-    return eventual 
+    eventual = crawl_runner.crawl(dailyspider.LawfareDaily,
+                                  **dict(date_check=False))  # TODO: change to True
+    logging.info(f"eventual {eventual}")
+    eventual = crawl_runner.crawl(dailyspider.SecAffDaily,
+                                  **dict(date_check=False))  # TODO: change to True
+    return eventual
+
 
 def _crawler_result(item, response, spider):
-    logging.info(item)
-    logging.info(dict(item))
+    # logging.info(item)
+    # logging.info(dict(item))
+    # arts = Articles.query.filter_by(briefingdate=TODAY)
+    # # regardless of which element is returned first,
+    # # backwards traversal will always land on the final element
+    # final = arts.first()
+    # if not final:
 
-    
+    #     class filler:
+    #         id = 0
+    #         prevart = None
+
+    #     final = filler()
+    data = item
+    return data
+    # return dict(data)
+
+    # article = Articles(
+    #     url = data.get("url"),
+    #     title=data.get("title"),
+    #     authors=data.get("author"),
+    #     body=data.get("body"),
+    #     source=data.get("source"),
+    #     artdate=data.get("date"),
+    #     prevart=0,
+    #     nextart=final.id,
+    #     # ranking = ranking,
+    # )
+    # logging.info(f"article as Articles class: {article}")
+    # logging.info(f"prevart: {article.prevart}")
+    # logging.info(f"nextart: {article.nextart}")
+    # db.session.add(article)
+    # db.session.flush()
+    # db.session.refresh(article)
+    # # logging.info(f"final prev art before: {final.prevart}")
+    # logging.info(f"id: {article.id}")
+    # final.prevart = article.id
+    # # logging.info(f"final prev art after: {final.prevart}")
+    # db.session.commit()
+    # # return json
+
     # db.session.add(item)
     # output_data.append(dict(item))
-
 
     # df = rank.sort(df)
     # # df.date = df.date.dt.strftime("%B %d, %Y")

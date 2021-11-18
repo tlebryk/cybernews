@@ -5,3 +5,5 @@ __pycache__
 scratch*
 commands.txt
 scrapers/data
+.vscode/
+

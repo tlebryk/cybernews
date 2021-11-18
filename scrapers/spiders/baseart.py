@@ -52,9 +52,10 @@ class FCWArt(NewsSpider):
         xpath = "//div[@id = 'article']/descendant::p[not(ancestor::div/@class='aboutAuthor')]"
         body = response.xpath(xpath).getall()
         body = [extract_text(para) for para in body]
-        # check if first line is real text
-        if len(body[0].split()) < 5:
-            body = body[1:]
+        # check if first line is real text and that body not none
+        if len(body) >= 1:
+            if len(body[0].split()) < 5:
+                body = body[1:]
         return "\n\n".join(body)
 
     def get_title(self, response):

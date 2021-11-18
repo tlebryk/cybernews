@@ -144,7 +144,7 @@ class CyberScoopDaily(base.CyberScoopArt):
     name = "CyberScoop"
     daily = True
     # custom_settings = settings
-
+    custom_settings = {'CLOSESPIDER_TIMEOUT' : 50}    
     def start_requests(self):
         self.start_urls = ["https://www.cyberscoop.com/news/government/"]
         self.date_check = True
