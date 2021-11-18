@@ -10,6 +10,8 @@ from app import db
 from app.models import Articles
 from datetime import date, datetime
 import logging
+import pandas as pd
+from rank import sort
 
 TODAY = date.today()
 
@@ -50,7 +52,14 @@ class ScrapersPipeline:
                 nextartid: {nextart.id};
                 nextarttitle: {nextart.title};"""
             )
-        for i, art in enumerate(self.ls):
+        df = pd.DataFrame(self.ls)
+        df = sort(df)
+        ls = df.to_dict('records')
+
+        for i, art in enumerate(ls):
+            logging.info(
+                f"artcle: {art.get('title')} has score {art.get('pred')}")
+            # do ranking here
             article = Articles(
                 url=art["url"],
                 title=art["title"],
