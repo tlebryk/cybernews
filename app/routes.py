@@ -470,6 +470,8 @@ def rankgloballs():
         )
     df = pd.DataFrame(GLOBALLS)
     df = sort(df)
+    # get top 8 results
+    df = df.head(8)
     ls = df.to_dict('records')
     for art in ls:
         logging.info(
