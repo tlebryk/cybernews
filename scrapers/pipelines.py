@@ -10,8 +10,8 @@ from app import db
 from app.models import Articles
 from datetime import date, datetime
 import logging
-import pandas as pd
-from rank import sort
+# import pandas as pd
+# from .rank import sort
 
 TODAY = date.today()
 
@@ -26,6 +26,7 @@ class ScrapersPipeline:
         return item
 
     def close_spider(self, spider):
+        return "dsafkalfslkjfds;lk"
         arts = Articles.query.filter_by(briefingdate=TODAY)
         nextart = arts.first()
         # return the id of the first article added
@@ -58,7 +59,7 @@ class ScrapersPipeline:
 
         for i, art in enumerate(ls):
             logging.info(
-                f"artcle: {art.get('title')} has score {art.get('pred')}")
+                f"artcle: {art.get('title')} has score {art.get('preds')}")
             # do ranking here
             article = Articles(
                 url=art["url"],
@@ -69,7 +70,7 @@ class ScrapersPipeline:
                 artdate=art["date"],
                 prevart=0,
                 nextart=nextart.id,
-                # ranking = ranking,
+                ranking=art.get("preds"),
             )
             db.session.add(article)
             db.session.flush()
