@@ -3,7 +3,6 @@ __pycache__
 *.docx
 *.doc
 scratch*
-commands.txt
 scrapers/data
 .vscode/
 

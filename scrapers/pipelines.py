@@ -10,8 +10,6 @@ from app import db
 from app.models import Articles
 from datetime import date, datetime
 import logging
-# import pandas as pd
-# from .rank import sort
 
 TODAY = date.today()
 
@@ -26,66 +24,4 @@ class ScrapersPipeline:
         return item
 
     def close_spider(self, spider):
-        return "dsafkalfslkjfds;lk"
-        arts = Articles.query.filter_by(briefingdate=TODAY)
-        nextart = arts.first()
-        # return the id of the first article added
-        # or none if no articles in list
-        start = None
-        counter = 0
-        if not nextart:
-            class filler:
-                id = 0
-                prevart = None
-                # firstflag = True
-
-            nextart = filler()
-            logging.info(
-                "No articles found during add_article. Initializing today's linked list"
-            )
-        else:
-            while nextart.prevart and counter < 1000:
-                nextart = Articles.query.get(nextart.prevart)
-                counter += 1
-            logging.info(
-                f"""nextartprevart:{nextart.prevart};
-                nextartnextart:{nextart.nextart};
-                nextartid: {nextart.id};
-                nextarttitle: {nextart.title};"""
-            )
-        df = pd.DataFrame(self.ls)
-        df = sort(df)
-        ls = df.to_dict('records')
-
-        for i, art in enumerate(ls):
-            logging.info(
-                f"artcle: {art.get('title')} has score {art.get('preds')}")
-            # do ranking here
-            article = Articles(
-                url=art["url"],
-                title=art["title"],
-                authors=art["author"],
-                body=art["body"],
-                source=art["source"],
-                artdate=art["date"],
-                prevart=0,
-                nextart=nextart.id,
-                ranking=art.get("preds"),
-            )
-            db.session.add(article)
-            db.session.flush()
-            db.session.refresh(article)
-            # if nxtart:
-            #     a = Articles.query.get(nxtart)
-            #     a.prevart = article.id
-            #     db.session.commit()
-            logging.info(f"nextart prev art before: {nextart.prevart}")
-            nextart.prevart = article.id
-            logging.info(f"nextart prev art after: {nextart.prevart}")
-            # if not nextart.get("firstflag"):
-            # even if first article, only a postgres object will get committed.
-            db.session.commit()
-            logging.info(f"added article: {art}")
-            # save id of first entry
-            nextart = article
-        # return item
+        return None

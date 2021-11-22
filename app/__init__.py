@@ -24,7 +24,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 # update app with config variables
 # to fetch config variables run something like: app.config.get("SECRET_KEY")
-app.config["SECRET_KEY"] = "6f1f6f1c724600453622f48c48555e73"
 migrate = Migrate(app, db)
+
 
 from app import routes
