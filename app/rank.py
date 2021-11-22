@@ -7,8 +7,8 @@ import os
 HOMEDIR = os.path.expanduser("~")
 
 
-analyze = pickle.load(open("app/models/analyze2.pickle", "rb"))
-gbm = pickle.load(open("app/models/gbm2.pickle", "rb"))
+analyze = pickle.load(open("app/mlmodels/analyze2.pickle", "rb"))
+gbm = pickle.load(open("app/mlmodels/gbm2.pickle", "rb"))
 
 # takes df, generates rankings, and returns sorted df based on rankings
 
@@ -19,5 +19,4 @@ def sort(df):
     print(preds)
     df['preds'] = preds
     df.fillna(value="None", inplace=True)
-    # df = df.drop("Tags", axis=1)
     return df.sort_values("preds")

@@ -11,7 +11,6 @@ class ArticleForm(FlaskForm):
     body = TextAreaField("Body", validators=[DataRequired()])
     source = StringField("Source")
     date = StringField("Date of article", validators=[DataRequired()])
-    # prevsub = SubmitField("Submit & Next Article")
     nextsub = SubmitField("Submit & Next Article")
     homesub = SubmitField("Submit & Return Home")
 

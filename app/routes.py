@@ -38,10 +38,6 @@ logging.basicConfig(level=logging.INFO)
 TODAY = date.today()
 
 settings = get_project_settings()
-# settings = {"ITEM_PIPELINES": {
-#     'pipelines.ScrapersPipeline': 300
-# }
-# }
 crawl_runner = CrawlerRunner(settings)
 
 crochet.setup()

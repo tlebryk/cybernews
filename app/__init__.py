@@ -5,15 +5,10 @@ from flask import Flask, render_template, redirect, url_for, request, flash, sen
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
-HOMEDIR = os.path.expanduser("~")
+CURRENTDIR = os.getcwd()
 DATETIMENOW = datetime.now().strftime("%Y%m%d_%H%M%S")
-logging.basicConfig(
-    format="%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
-    # datefmt="%Y-%m-%d %H:%M:%S",
-    # filename=f"{HOMEDIR}/Desktop/repos/protocol-china/wipo/logs/run_wipopagelink_scraper/scrapy_wipo_{DATETIMENOW}.log",
-    level=logging.INFO,
-)
-logging.basicConfig(level=logging.INFO)
+LOGPATH = f"{CURRENTDIR}/logs/{__file__}/"
+
 
 TODAY = date.today()
 app = Flask(__name__)
@@ -23,8 +18,18 @@ app.config.from_object(env_config)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 # update app with config variables
-# to fetch config variables run something like: app.config.get("SECRET_KEY")
 migrate = Migrate(app, db)
+
+# todo: set up production logging
+if app.config.get("development"):
+    if not os.path.exists(LOGPATH):
+        os.makedirs(LOGPATH)
+    logging.basicConfig(
+        filename=f"{LOGPATH}/{DATETIMENOW}.log",
+        format="%(asctime)s %(levelname)-8s  %(filename)s %(lineno)d %(message)s",
+        level=logging.INFO,
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
 
 
 from app import routes

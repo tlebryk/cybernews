@@ -19,21 +19,6 @@ class Articles(db.Model):
     nextart = db.Column(db.Integer)
     prevart = db.Column(db.Integer)
 
-
-    # def __init__(self, title, body, authors, source, url, artdate, briefingdate, ranking, nextart, prevart):
-    #     self.title = title
-    #     self.body = body
-    #     self.authors = authors
-    #     self.source = source
-    #     self.url = url
-    #     self.artdate = artdate
-    #     self.briefingdate = briefingdate
-    #     self,ranking = ranking
-    #     self.nextart = nextart
-    #     self.prevart = prevart
-
-
-
     def __repr__(self):
         return f"{self.title}, {self.source}, {self.id}"
 
