@@ -55,7 +55,7 @@ queuelib==1.6.2
 requests==2.26.0
 scikit-learn==0.24.1
 scipy==1.7.2
-Scrapy==2.5.1
+Scrapy==2.6.0
 service-identity==21.1.0
 six==1.16.0
 SQLAlchemy==1.4.27
